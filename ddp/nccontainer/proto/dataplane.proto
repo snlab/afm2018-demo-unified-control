@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package dataplane;
+
+enum Type {
+    PUSH = 0;
+    PULL = 1;
+}
+
+message DPMsg {
+    Type type = 1;
+    string dp_id =2;
+    string op_id =3;
+    // string state =4;
+}

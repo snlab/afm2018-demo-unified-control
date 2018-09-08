@@ -1,0 +1,25 @@
+switches: [n5, n1, n2, n3, n4]
+hosts:
+  ser: {ip: 10.0.0.1, type: default}
+  h1: {ip: 10.0.0.2, type: default}
+links:
+- bw: 1000
+  endpoint1: {node: n1, port: 1}
+  endpoint2: {node: n5, port: 1}
+- bw: 1000
+  endpoint1: {node: n2, port: 1}
+  endpoint2: {node: n5, port: 2}
+- bw: 1000
+  endpoint1: {node: n3, port: 1}
+  endpoint2: {node: n5, port: 3}
+- bw: 1000
+  endpoint1: {node: n4, port: 1}
+  endpoint2: {node: n5, port: 4}
+- bw: 1000
+  endpoint1: {node: n5, port: 5}
+  endpoint2: {node: ser, port: 0}
+- bw: 1000
+  endpoint1: {node: n1, port: 2}
+  endpoint2: {node: h1, port: 0}
+
+

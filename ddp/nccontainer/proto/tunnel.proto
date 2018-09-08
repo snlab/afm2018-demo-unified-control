@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package tunnel;
+
+message Container {
+    string dp_id = 1;
+    string op_id = 2;
+    string ack_from = 3;
+    string ack_to = 4;
+    bytes entry = 5;
+}
+
+message Control {
+    string dp_id = 1;
+}

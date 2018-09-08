@@ -1,0 +1,3 @@
+hn2 python -m SimpleHTTPServer 80 &
+ids cd /home/yutao/Desktop/trident-demo/testbed/bro
+ids bro -C -i ids-eth0 http.bro > output0.log &

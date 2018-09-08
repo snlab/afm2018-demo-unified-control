@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package tunnel;
+
+enum Type {
+    NO_MOD = 0;
+    NC_CTRL = 1;
+}
+
+message nccontainer {
+   string switch = 1;
+   string op_id = 2;
+   string instruction = 3;
+   string ack_from = 4;
+   string ack_to = 5;
+   bytes entry = 6;
+}
+
+message BackStreamTunnel{
+   string switch = 1;
+   string op_id = 2;
+   string instruction = 3;
+   string ack_from = 4;
+   string ack_to = 5;
+   bytes entry = 6;
+}

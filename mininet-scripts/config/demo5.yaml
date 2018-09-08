@@ -1,0 +1,47 @@
+switches: [n1, n2, n3, n4, n5]
+hosts:
+  ser: {ip: 10.0.0.1, type: default}
+  h1: {ip: 10.0.0.2, type: default}
+  vnf: {ip: null, type: local}
+links:
+- bw: 1000
+  endpoint1: {node: n1}
+  endpoint2: {node: n2}
+- bw: 1000
+  endpoint1: {node: n1}
+  endpoint2: {node: n3}
+- bw: 1000
+  endpoint1: {node: n1}
+  endpoint2: {node: n4}
+- bw: 1000
+  endpoint1: {node: n4}
+  endpoint2: {node: n3}
+- bw: 1000
+  endpoint1: {node: n4}
+  endpoint2: {node: n5}
+- bw: 1000
+  endpoint1: {node: n3}
+  endpoint2: {node: n5}
+- bw: 1000
+  endpoint1: {node: n2}
+  endpoint2: {node: n3}
+- bw: 1000
+  endpoint1: {node: n2}
+  endpoint2: {node: n5}
+- bw: 1000
+  endpoint1: {node: ser}
+  endpoint2: {node: n2}
+- bw: 1000
+  endpoint1: {node: h1}
+  endpoint2: {node: n1}
+- bw: 1000
+  endpoint1: {node: vnf}
+  endpoint2: {node: n4}
+- bw: 1000
+  endpoint1: {node: vnf}
+  endpoint2: {node: n5}
+commands:
+  initial:
+    - "sh ifconfig vnf-eth0 10.0.0.3 up"
+    - "sh ifconfig vnf-eth1 10.0.0.4 up"
+

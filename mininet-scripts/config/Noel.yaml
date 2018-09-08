@@ -1,0 +1,119 @@
+hosts:
+  hn1: {ip: 10.0.0.6, type: default}
+  hn12: {ip: 10.0.0.9, type: default}
+  hn13: {ip: 10.0.0.3, type: default}
+  hn14: {ip: 10.0.0.2, type: default}
+  hn15: {ip: 10.0.0.1, type: default}
+  hn16: {ip: 10.0.0.5, type: default}
+  hn17: {ip: 10.0.0.8, type: default}
+  hn2: {ip: 10.0.0.4, type: default}
+  hn3: {ip: 10.0.0.10, type: default}
+  hn6: {ip: 10.0.0.7, type: default}
+links:
+- bw: 1000
+  endpoint1: {node: n12}
+  endpoint2: {node: n13}
+- bw: 1000
+  endpoint1: {node: n12}
+  endpoint2: {node: n11}
+- bw: 1000
+  endpoint1: {node: n18}
+  endpoint2: {node: n7}
+- bw: 1000
+  endpoint1: {node: n6}
+  endpoint2: {node: n7}
+- bw: 1000
+  endpoint1: {node: n18}
+  endpoint2: {node: n8}
+- bw: 1000
+  endpoint1: {node: n17}
+  endpoint2: {node: n8}
+- bw: 1000
+  endpoint1: {node: n8}
+  endpoint2: {node: n9}
+- bw: 1000
+  endpoint1: {node: n11}
+  endpoint2: {node: n8}
+- bw: 1000
+  endpoint1: {node: n12}
+  endpoint2: {node: n10}
+- bw: 1000
+  endpoint1: {node: n10}
+  endpoint2: {node: n9}
+- bw: 1000
+  endpoint1: {node: n5}
+  endpoint2: {node: n6}
+- bw: 1000
+  endpoint1: {node: n10}
+  endpoint2: {node: n4}
+- bw: 1000
+  endpoint1: {node: n4}
+  endpoint2: {node: n5}
+- bw: 1000
+  endpoint1: {node: n3}
+  endpoint2: {node: n4}
+- bw: 1000
+  endpoint1: {node: n8}
+  endpoint2: {node: n4}
+- bw: 1000
+  endpoint1: {node: n4}
+  endpoint2: {node: n7}
+- bw: 1000
+  endpoint1: {node: n0}
+  endpoint2: {node: n4}
+- bw: 1000
+  endpoint1: {node: n0}
+  endpoint2: {node: n1}
+- bw: 1000
+  endpoint1: {node: n2}
+  endpoint2: {node: n3}
+- bw: 1000
+  endpoint1: {node: n1}
+  endpoint2: {node: n2}
+- bw: 1000
+  endpoint1: {node: n17}
+  endpoint2: {node: n18}
+- bw: 1000
+  endpoint1: {node: n12}
+  endpoint2: {node: n14}
+- bw: 1000
+  endpoint1: {node: n14}
+  endpoint2: {node: n15}
+- bw: 1000
+  endpoint1: {node: n16}
+  endpoint2: {node: n17}
+- bw: 1000
+  endpoint1: {node: n16}
+  endpoint2: {node: n18}
+- bw: 1000
+  endpoint1: {node: hn15}
+  endpoint2: {node: n15}
+- bw: 1000
+  endpoint1: {node: hn14}
+  endpoint2: {node: n14}
+- bw: 1000
+  endpoint1: {node: hn13}
+  endpoint2: {node: n13}
+- bw: 1000
+  endpoint1: {node: hn2}
+  endpoint2: {node: n2}
+- bw: 1000
+  endpoint1: {node: hn16}
+  endpoint2: {node: n16}
+- bw: 1000
+  endpoint1: {node: hn1}
+  endpoint2: {node: n1}
+- bw: 1000
+  endpoint1: {node: hn6}
+  endpoint2: {node: n6}
+- bw: 1000
+  endpoint1: {node: hn17}
+  endpoint2: {node: n17}
+- bw: 1000
+  endpoint1: {node: hn12}
+  endpoint2: {node: n12}
+- bw: 1000
+  endpoint1: {node: hn3}
+  endpoint2: {node: n3}
+switches: [n12, n13, n10, n11, n16, n17, n14, n15, n18, n8, n9, n0, n1, n2, n3, n4,
+  n5, n6, n7]

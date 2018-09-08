@@ -1,0 +1,11 @@
+{
+  "author": "snlab",
+  "username": "snlab",
+  "name": "DDP",
+  "description": "DDP with Update Algebra on Kytos",
+  "version": "latest",
+  "napp_dependencies": ["kytos/of_core", "kytos/of_lldp", "kytos/storehouse","kytos/topology"],
+  "license": "MIT",
+  "tags": ["DDP"],
+  "url": "http://snlab.org"
+}

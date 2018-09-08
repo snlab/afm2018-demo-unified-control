@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package spcomunication;
+
+enum Type {
+    PUSH = 0;
+    PULL = 1;
+    MAP = 2;
+}
+
+message spmsg {
+    Type type = 1;
+    string switch_addr =2;
+    string operation_id =3;
+    string sproxy_port = 5;
+    string sproxy_addr = 4;
+    string state =6;
+}

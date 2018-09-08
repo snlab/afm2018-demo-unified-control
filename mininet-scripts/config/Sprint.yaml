@@ -1,0 +1,69 @@
+hosts:
+  hn0: {ip: 10.0.0.3, type: default}
+  hn8: {ip: 10.0.0.2, type: default}
+  hn9: {ip: 10.0.0.1, type: default}
+links:
+- bw: 1000
+  endpoint1: {node: n10}
+  endpoint2: {node: n4}
+- bw: 1000
+  endpoint1: {node: n3}
+  endpoint2: {node: n7}
+- bw: 1000
+  endpoint1: {node: n4}
+  endpoint2: {node: n7}
+- bw: 1000
+  endpoint1: {node: n4}
+  endpoint2: {node: n5}
+- bw: 1000
+  endpoint1: {node: n6}
+  endpoint2: {node: n7}
+- bw: 1000
+  endpoint1: {node: n5}
+  endpoint2: {node: n6}
+- bw: 1000
+  endpoint1: {node: n10}
+  endpoint2: {node: n9}
+- bw: 1000
+  endpoint1: {node: n8}
+  endpoint2: {node: n7}
+- bw: 1000
+  endpoint1: {node: n3}
+  endpoint2: {node: n4}
+- bw: 1000
+  endpoint1: {node: n8}
+  endpoint2: {node: n3}
+- bw: 1000
+  endpoint1: {node: n1}
+  endpoint2: {node: n7}
+- bw: 1000
+  endpoint1: {node: n1}
+  endpoint2: {node: n6}
+- bw: 1000
+  endpoint1: {node: n2}
+  endpoint2: {node: n3}
+- bw: 1000
+  endpoint1: {node: n10}
+  endpoint2: {node: n1}
+- bw: 1000
+  endpoint1: {node: n0}
+  endpoint2: {node: n5}
+- bw: 1000
+  endpoint1: {node: n0}
+  endpoint2: {node: n1}
+- bw: 1000
+  endpoint1: {node: n1}
+  endpoint2: {node: n5}
+- bw: 1000
+  endpoint1: {node: n1}
+  endpoint2: {node: n2}
+- bw: 1000
+  endpoint1: {node: hn9}
+  endpoint2: {node: n9}
+- bw: 1000
+  endpoint1: {node: hn8}
+  endpoint2: {node: n8}
+- bw: 1000
+  endpoint1: {node: hn0}
+  endpoint2: {node: n0}
+switches: [n10, n8, n9, n0, n1, n2, n3, n4, n5, n6, n7]
