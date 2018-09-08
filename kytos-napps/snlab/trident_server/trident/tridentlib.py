@@ -1,5 +1,6 @@
 
 import networkx as nx
+from runtime import LvSystem
 
 class TridentContext(object):
     """
@@ -7,10 +8,11 @@ class TridentContext(object):
     and gives access to network topology so that they can be
     used in a program.
     """
-    def __init__(self, parser, interpreter, runtime):
+    def __init__(self, parser, interpreter, runtime, controller):
         self.parser = parser
         self.interpreter = interpreter
         self.runtime = runtime
+        self.controller = controller
 
     def set_topology(self, nodes, edges):
         self.nodes = nodes
@@ -33,6 +35,10 @@ class TridentServer(object):
     def __init__(self):
         self.program = ""
         self.ctx = None
+        self.controller = None
+
+    def set_controller(self, controller):
+        self.controller = controller
 
     def submit(self, lark, program, debug=False):
         self.program = program
@@ -41,7 +47,8 @@ class TridentServer(object):
         from interpreter import LarkInterpreter
 
         self.ctx = TridentContext(LarkParser(lark),
-                                  LarkInterpreter())
+                                  LarkInterpreter(), LvSystem(),
+                                  self.controller)
 
         self.ctx.parse(program)
 

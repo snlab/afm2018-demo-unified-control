@@ -9,6 +9,7 @@ from napps.snlab.trident_server import settings
 from kytos.core.helpers import listen_to
 
 from trident.server import http_server
+from trident.server import trident
 
 class Main(KytosNApp):
     """Main class of snlab/trident_server NApp.
@@ -24,6 +25,7 @@ class Main(KytosNApp):
 
         So, if you have any setup routine, insert it here.
         """
+        trident.set_controller(self.controller)
         http_server.serve_forever()
         log.info('trident server start')
 
