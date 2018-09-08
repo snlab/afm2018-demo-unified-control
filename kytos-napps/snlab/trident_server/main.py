@@ -30,6 +30,8 @@ class Main(KytosNApp):
 
         So, if you have any setup routine, insert it here.
         """
+        self.first_get_topology = True
+
         trident.set_controller(self.controller)
 
         tt = threading.Thread(target=self.run_trident_server)
@@ -68,6 +70,16 @@ class Main(KytosNApp):
         interface = event.content['interface']
         log.info("interface link down: " + str(interface.switch.dpid) + ":" +
                  str(interface.port_number))
+
+    @listen_to('kytos/topology.updated')
+    def handle_topology_update(self, event):
+        topology = event.content['topology']
+
+    def get_nodes(self, topology):
+        pass
+
+    def get_edges(self, topology):
+        pass
 
     def shutdown(self):
         """This method is executed when your napp is unloaded.
