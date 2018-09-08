@@ -13,7 +13,8 @@ NOTE: for convenience, modify the Python3.6 environment in start-switch-proxy.sh
 ## Usage
 
 ```
-usage: topogen.py [-h] [--controller CONTROLLER] config
+usage: topogen.py [-h] [-c CONTROLLER] [--ddp] [--ddpcontroller DDPCONTROLLER]
+                  config
 
 Mininet topology generator
 
@@ -22,9 +23,11 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --controller CONTROLLER
-                        Remote controller, default 127.0.0.1:6653
-
+  -c CONTROLLER, --controller CONTROLLER
+                        Remote controller, default 127.0.0.1:6633
+  --ddp                 Enable DDP switch proxy
+  --ddpcontroller DDPCONTROLLER
+                        DDP controller address, default 127.0.0.1:9090
 ```
 
 ## Configuration file format
@@ -71,7 +74,7 @@ hn1 curl http://10.0.0.2
 ## Example 2
 
 ```
-python2 topogen.py config/topo5.yaml --ddp=127.0.0.1:9090
+python2 topogen.py config/topo5.yaml --ddp --ddpcontroller=127.0.0.1:9090
 ```
 
 ![](topo5.png)
