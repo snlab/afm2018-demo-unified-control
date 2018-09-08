@@ -1,0 +1,17 @@
+{
+    "http_host": {
+        "datatype": "string",
+        "name": "http_host",
+        "streamtype": "tcp-5-tuple"
+    },
+    "http-request-uri": {
+        "datatype": "string",
+        "name": "http-request-uri",
+        "streamtype": "tcp-5-tuple"
+    },
+    "infected": {
+        "datatype": "bool",
+        "name": "infected",
+        "streamtype": "dst-ip"
+    }
+}
