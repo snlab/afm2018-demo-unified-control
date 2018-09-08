@@ -5,6 +5,7 @@ import math
 import yaml
 import re
 import argparse
+import signal
 
 import subprocess
 from subprocess import call, Popen
@@ -134,12 +135,15 @@ def start_ddp_switchproxy(topo, controller):
     swl = topo['switches']
     c=0; d=1; process = []
     filedir = os.path.split(os.path.realpath(__file__))[0]
+    if not os.path.exists('log'):
+        os.mkdir('log')
     for sw in swl:
         ip = "172.250.%d.%d"%(c,d)
         call("ifconfig %s %s up"%(sw, ip), shell=True)
         call("ovs-vsctl set-controller %s tcp:%s:6653"%(sw,ip), shell=True)
-        cmd = "%s/start-switch-proxy.sh %s %d %s %s.log" % (filedir, ip, 6653, controller, sw)
-        process.append(Popen(cmd,shell=True, stdout=subprocess.STDOUT, stderr=subprocess.STDOUT))
+        cmd = "%s/start-switch-proxy.sh %s %d %s" % (filedir, ip, 6653, controller)
+        out = open("log/%s.log"%sw,'w')
+        process.append(Popen(cmd,shell=True,stdout=out,stderr=out))
         info(cmd+"\n")
         d+=1
         if d>254:
@@ -148,9 +152,10 @@ def start_ddp_switchproxy(topo, controller):
                 raise RuntimeError("too much switches")
     return process
 
+
 def stop_ddp_switchproxy(process):
     for p in process:
-        p.kill()
+        os.killpg(os.getpgid(p.pid), signal.SIGTERM)
 
 
 def start_net(topo, args):
