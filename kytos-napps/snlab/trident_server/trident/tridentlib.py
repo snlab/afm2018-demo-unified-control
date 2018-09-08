@@ -42,14 +42,14 @@ class TridentContext(object):
         self.edges = edges
 
     '''
-    example:
+    table = {rule}
+    rule:
     priority = 10
     match = {"sip": "192.168.1.1", "dip": ..., "sport": 20} same with Packet
     path = [("00:00:00:00:00:00:00:01", 1), (...)]
     '''
-    def install_path(self, priority, match, path):
-        event = KytosEvent(name = 'snlab/ddp/setup', content = (priority,
-                                                                match, path))
+    def update_table(self, table):
+        event = KytosEvent(name = 'snlab/ddp/setup', content = table)
         self.controller.buffers.app.put(event)
 
     def parse(self, program):
