@@ -11,11 +11,16 @@ from kytos.core.helpers import listen_to
 from trident.server import http_server
 from trident.server import trident
 
+import threading
+
 class Main(KytosNApp):
     """Main class of snlab/trident_server NApp.
 
     This class is the entry point for this napp.
     """
+
+    def run_trident_server(self):
+        http_server.serve_forever()
 
     def setup(self):
         """Replace the '__init__' method for the KytosNApp subclass.
@@ -26,7 +31,11 @@ class Main(KytosNApp):
         So, if you have any setup routine, insert it here.
         """
         trident.set_controller(self.controller)
-        http_server.serve_forever()
+
+        tt = threading.Thread(target=self.run_trident_server)
+        tt.daemon = True
+        tt.start()
+
         log.info('trident server start')
 
     def execute(self):
