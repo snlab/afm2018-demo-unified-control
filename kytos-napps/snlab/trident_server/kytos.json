@@ -1,0 +1,11 @@
+{
+  "author": "snlab",
+  "username": "snlab",
+  "name": "trident_server",
+  "description": "trident server",
+  "version": "latest",
+  "napp_dependencies": [],
+  "license": "",
+  "tags": [],
+  "url": ""
+}
