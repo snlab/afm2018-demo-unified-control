@@ -48,6 +48,8 @@ class ControllerPlugin:
         # TODO verify path
         self.__msg_queue.put((priority, match, path))
 
+#ip_src(string), ip_dst(string), port_src(int), port_dst(int), protocol(string)
+#path = [("00:00:00:00:00:00:00:01", 1), ()]
 
 if __name__ == "__main__":
     from pyof.foundation.basic_types import IPAddress
