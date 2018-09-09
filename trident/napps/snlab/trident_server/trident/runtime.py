@@ -1,4 +1,3 @@
-
 import uuid
 import networkx as nx
 from thespian.actors import *

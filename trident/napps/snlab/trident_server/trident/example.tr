@@ -1,30 +1,30 @@
-    requri = StreamAttribute.load("example.json", "http-request-uri")
-    infected = StreamAttribute.load("example.json", "infected")
-    capacity = NetworkState("int", "capacity", "edge")
-    M = test()
-    C = Waypoint("all", role="client", logo="github")
-    S = Waypoint(role="server")
+http_uri = StreamAttribute.load('example.json', 'http_uri') 
+authenticated = StreamAttribute.load('example.json', 'authenticated')
 
-    P = (C :-: S)
-    X = Shortest(P)
-    Y = (X + X) | X & *X - ~X >> X
+DPI = Waypoint(role='dpi') 
+AAA = Waypoint(role='aaa')
 
-    program {
-      a = 10
-      x = (((100 + 20)) > (30 + a))
-      if (pkt.infected) {
-        if (pkt.requri == "www.xyz.com") {
-          Z = (Y + X) where (capacity == 10)
-          bind(pkt, Z)
-        } else {
-          drop(pkt)
-        }
-      } else {
-        if (pkt.sip == "10.0.0.1") {
-          X = P
-        } else {
-          X = ~P
-        }
-        bind(pkt, X)
-      }
+C = Waypoint(role='client') 
+S = Waypoint(role='server')
+
+P1 = C :-: DPI :-: S 
+P2 = C :-: S
+P3 = C :-: AAA
+
+program {
+  iff (pkt.authenticated) {
+    iff (pkt.http_uri == 'www.xyz.com') {
+      r = any(P2 where (start==pkt.inport && end == pkt.dst)) 
+      bind(pkt, r)
+      bind(~pkt, ~r)
+    } else {
+      r = any(P1 where (start == pkt.inport && end == pkt.dst)) 
+      bind(pkt, r)
+      bind(~pkt, ~r)
     }
+  } else {
+    r = any(P3) 
+    bind(pkt, r) 
+    bind(~pkt, ~r)
+  } 
+}

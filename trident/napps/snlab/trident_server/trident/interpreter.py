@@ -1,4 +1,3 @@
-
 import json, uuid
 import networkx as nx
 from functools import reduce
@@ -137,7 +136,7 @@ class TridentInterpreter(object):
     def interpret(self, ast):
         return None
 
-class TridentTransformer(Transformer):
+class TridentTransformer(Transformer): # Removing \"
     def stream_attribute(self, matches):
         return [m.value.strip('\"') for m in matches]
 
