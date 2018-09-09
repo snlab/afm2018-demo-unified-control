@@ -7,10 +7,10 @@ from nccontainer.common.logger import logger
 
 
 class _FlowStatus:
-    def __init__(self, key):
-        self.path = None
-        self.priority = 1
-        self.match = None
+    def __init__(self, key, priority=-1, match=None, path=None):
+        self.path = path
+        self.priority = priority
+        self.match = match
         self.key = key  # flow priority match tuple
 
 
@@ -39,6 +39,29 @@ class UpdateScheduler(Thread):
                 stat.path = path
                 stat.priority = priority
                 stat.match = match
+            elif isinstance(e, list):
+                new_flow_status = {}
+                for priority, match, path in e:
+                    assert path is not None
+                    flow = make_flow_key(priority, match)
+                    status = _FlowStatus(key=flow, priority=priority, match=match, path=path)
+                    new_flow_status[flow] = status
+                new = set(new_flow_status.keys())
+                old = set(self.__flow_status.keys())
+                for install in new-old:
+                    s = new_flow_status[install]
+                    dep = DependencyGraph().construct(s.priority, s.match, None, s.path)
+                    self.__execute(dep)
+                for modify in new&old:
+                    s1 = self.__flow_status[modify]
+                    s2 = new_flow_status[modify]
+                    dep = DependencyGraph().construct(s2.priority, s2.match, s1.path, s2.path)
+                    self.__execute(dep)
+                for remove in old-new:
+                    s = self.__flow_status[remove]
+                    dep = DependencyGraph().construct(s.priority, s.match, s.path, None)
+                    self.__execute(dep)
+                self.__flow_status = new_flow_status
 
     def __update_topology(self, topo):
         # TODO compare topo

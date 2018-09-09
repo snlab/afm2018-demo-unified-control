@@ -8,6 +8,7 @@ from pyof.v0x01.controller2switch.flow_mod import FlowMod as FM10
 from pyof.v0x01.controller2switch.flow_mod import FlowModCommand as FMC
 from pyof.v0x01.controller2switch.packet_out import PacketOut as PO10
 from pyof.v0x04.common.action import ActionOutput as AO13
+
 from pyof.v0x04.common.flow_instructions import InstructionApplyAction
 from pyof.v0x04.common.flow_match import OxmOfbMatchField, OxmTLV, VlanId
 from pyof.v0x04.common.port import PortNo as Port13
@@ -49,8 +50,10 @@ class Operation:
             assert field is not None  # TODO
             assert isinstance(v, bytes)  # TODO value type
             flow_mod.match.oxm_match_fields.append(OxmTLV(oxm_field=field, oxm_value=v))
-        inst = InstructionApplyAction(actions=[AO13(port=p) for p in self.action['output']])
-        flow_mod.instructions.append(inst)
+        # Port13.OFPP_CONTROLLER
+        if None not in self.action['output']:
+            inst = InstructionApplyAction(actions=[AO13(port=p) for p in self.action['output']])
+            flow_mod.instructions.append(inst)
         return flow_mod.pack()
 
 
@@ -181,7 +184,7 @@ class DependencyGraph:
                         n,
                         priority,
                         match,
-                        {"output": [p]}
+                        {"output": p}
                     ))
             else:
                 node_map[n] = DependencyNode(Operation(
@@ -189,7 +192,7 @@ class DependencyGraph:
                     n,
                     priority,
                     match,
-                    {"output": [p]}
+                    {"output": p}
                 ))
         for n, p in path1_map.items():
             if n not in path2_map:
@@ -198,6 +201,6 @@ class DependencyGraph:
                     n,
                     priority,
                     match,
-                    {"output": [p]}
+                    {"output": p}
                 ))
         return node_map

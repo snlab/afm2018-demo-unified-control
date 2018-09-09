@@ -38,18 +38,11 @@ class ControllerPlugin:
         self.__msg_queue.put(topo)
 
     def setupPath(self, priority, match, path):
-        """
-        API to set up a flow path
-        :param priority: integer
-        :param match: {"field":value, "field_with_mask": (value, mask), ...}
-        :param path: ((dpid, output_port_id),...), dpid format "00:00:00:00:00:00:00:00"
-        :return:
-        """
-        # TODO verify path
         self.__msg_queue.put((priority, match, path))
 
-#ip_src(string), ip_dst(string), port_src(int), port_dst(int), protocol(string)
-#path = [("00:00:00:00:00:00:00:01", 1), ()]
+    def setupPathList(self, path_table):
+        self.__msg_queue.put(path_table)
+
 
 if __name__ == "__main__":
     from pyof.foundation.basic_types import IPAddress
@@ -71,10 +64,10 @@ if __name__ == "__main__":
     match2_1 = {"eth_type": IPTYPE,
                 "ip_src": ip2,
                 "ip_dst": ip1}
-    path1_2 = [[(sw[1], 1), (sw[2], 1), (sw[3], 3)],
-               [(sw[1], 2), (sw[4], 1), (sw[3], 3)]]
-    path2_1 = [[(sw[3], 1), (sw[2], 2), (sw[1], 3)],
-               [(sw[3], 2), (sw[4], 2), (sw[1], 3)]]
+    path1_2 = [[(sw[1], {1}), (sw[2], {1}), (sw[3], {3})],
+               [(sw[1], {2}), (sw[4], {1}), (sw[3], {3})]]
+    path2_1 = [[(sw[3], {1}), (sw[2], {2}), (sw[1], {3})],
+               [(sw[3], {2}), (sw[4], {2}), (sw[1], {3})]]
     count = 1
     while True:
         import time
