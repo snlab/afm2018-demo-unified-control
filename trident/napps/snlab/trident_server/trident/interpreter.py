@@ -178,7 +178,7 @@ class LarkInterpreter(TridentInterpreter):
 
         self.do_interpret(transformer.transform(ast), cb)
         self.add_virtual_sink(cb)
-        return self.vgraph, self.vnodes
+        return self.vgraph, self.vnodes # FIXME converting to sequence of Node s
 
     def add_virtual_sink(self, cb):
         appeared = {}

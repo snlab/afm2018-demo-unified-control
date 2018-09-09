@@ -27,6 +27,8 @@ class TridentContext(object):
         self.runtime = runtime
 
     '''
+    The format of topology:
+
     ctx.nodes = { "s1": { "role": "sw"  }, "s2": { "role": "sw"  }, "h1": {
     "role": "client"  }, "h2": { "role": "server"  }, "dpi1": { "role": "dpi"
     }, "dpi2": { "role": "dpi"  }  }
@@ -103,17 +105,21 @@ class TridentServer(object):
             print(self.ctx.ast.pretty())
         self.ctx.interpret()
 
-    def update_sa(self, sa_name, pkt, value):
-        self.ctx.runtime.new_value(sa_name, pkt, value)
-
     def new_pkt(self, pkt):
-        self.ctx.runtime.new_packet(pkt)
+        self.ctx.runtime.new_pkt(pkt)
+        # TODO Hardcode stub 1/3 onPacket: fake table with update_table() 
+
+    def update_sa(self, sa_name, pkt, value):
+        self.ctx.runtime.update_sa(sa_name, pkt, value)
+        # TODO Hardcode stub 2/3 State update: fake table with update_table()
 
     def set_topology(self, nodes, edges):
         self.ctx.set_topology(nodes, edges)
 
     def update_topology(self, nodes, edges):
-        pass
+        # TODO Hardcode stub 3/3 Topology change: fake table with update_table()
+        self.set_topology(nodes, edges)
+        self.ctx.runtime.update_topology()
 
 def test_lark(larkfile, progfile):
     trident = TridentServer()
