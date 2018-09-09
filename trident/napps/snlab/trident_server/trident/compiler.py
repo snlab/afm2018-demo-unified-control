@@ -100,6 +100,21 @@ class TridentCompiler(object):
         assert ast.data == 'bind'
         # TODO modularize for compile()
 
+   #  def validate(self, ast):
+   #      if len(ast.children) == 3:
+
+
+   #  def dfs(self, node, ast):
+   #      path.append(node)
+   #      if path.validate(path, ast):
+   #          ret_list.append(path.clone())
+
+   #      for trgt in node.next():
+   #          if not trgt in path:
+   #              dfs(trgt, ast)
+   #      path.pop()
+
+
     def calc_ra(self, ast): # TODO
         """
         return Table((start, end) -> (R)),
@@ -107,7 +122,13 @@ class TridentCompiler(object):
         and capacity is not included in demo
         """
         assert ast.data == 'ra_dec'
-        return Table([], [], ast)
+
+        table = Table([], [], ast)
+        # for node in Nodes
+        #   DFS(node, ast) # update path during DFS, 
+        #                         # use validation function to check if this path follows the 
+
+        return table
 
     def do_compile(self, ast):
         for k in HEADERFIELD_TABLE:

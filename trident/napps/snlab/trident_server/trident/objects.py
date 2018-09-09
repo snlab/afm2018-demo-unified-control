@@ -16,6 +16,15 @@ class Table(object):
         # records: inputs, itself
         # tags: updating -> true means the table has changed
 
+    def get_key(self):
+        return self.key
+
+    def get_act(self):
+        return self.act
+
+    def get_rules(self):
+        return self.rules
+
     # def set_dependency(self, parents):
         # TODO
         # self.parents
@@ -68,6 +77,59 @@ class Table(object):
                 # self.rules = update acoording to executor
                 self.updating = True
 
+#     def rule_union(ax, ay, rx, ry, ajoin):
+#     """
+#     rule_union: computes the union of two rules, coalescing any shared attributes.
+#     ax: rule 1's attributes
+#     ay: rule 2's attributes
+#     rx: rule 1's values
+#     ry: rule 2's values
+#     ajoin: the union of Rule 1 and Rule 2's attributes
+# 
+#     returns rjoin: The union of Rule 1 and Rule 2's values, coalescing shared attributes
+#     """
+#     pri_ind = 0    #Priority is always the first value in a rule
+#     first_attr_ind = 1 #Attributes start from index 1
+#     
+#     rjoin = np.zeros(len(ajoin), dtype=object)  #rjoin: The rule union
+#     rjoin[pri_ind] = str(int(rx[PRI_IND]) + int(ry[PRI_IND]))
+#     
+#     for i in range(1, len(ajoin)): #Don't join priority
+#         rx_ind = np.where(ax == ajoin[i])[0]
+#         ry_ind = np.where(ay == ajoin[i])[0]
+#         #print "attr:{}, rx_ind:{}, ry_ind:{}".format(ajoin[i], rx_ind, ry_ind)
+#         
+#         if len(rx_ind) > 0 and len(ry_ind) > 0:
+#             rjoin[i] = coalesce(rx[rx_ind[0]], ry[ry_ind[0]])
+#             #print "coalesce:{} and {} -> {}".format(rx[rx_ind[0]], ry[ry_ind[0]], rjoin[i])
+#             if rjoin[i] == None:
+#                 return None
+#         elif len(rx_ind) > 0:
+#             rjoin[i] = rx[rx_ind[0]]
+#         else: 
+#             rjoin[i] = ry[ry_ind[0]]
+# 
+#     return rjoin
+# 
+#     def flow_join(trgt): # dummy join
+#         key = []
+#         for attr in self.key:
+#             key.append(attr)
+# 
+#         for attr in trgt.key:
+#             if attr not in trgt.get_act():
+#                 key.append(attr)
+# 
+#         rules = []
+#         for rx in self.rules:
+#             for ry in trgt.get_rules():
+#                 rxy = rule_union(tx.get_attr(), ty.get_attr(), rx, ry, attr)
+#                 if rx is not None:
+#                     rules.append(rxy)
+#         
+#         txy = table(key, 
+#         txy.add_rules(rules)
+#         return txy
 
     def __str__(self):
         out = "-------\n"
