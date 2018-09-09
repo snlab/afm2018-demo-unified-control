@@ -1,12 +1,15 @@
 from flask import Flask, request, g
 from gevent.pywsgi import WSGIServer
 
-from tridentlib import TridentServer
+from napps.snlab.trident_server.trident.tridentlib import TridentServer
 
 app = Flask("trident")
 
 trident = TridentServer()
-lark = "example.lark"
+
+
+from napps.snlab.trident_server.settings import CONFIG_LARK as lark
+# lark = "example.lark"
 
 @app.route('/submit', methods=['POST'])
 def submit_program():
@@ -44,4 +47,4 @@ def new_packet():
     return 'ok'
 
 http_server = WSGIServer(('', 12321), app)
-#http_server.serve_forever()
+http_server.serve_forever()

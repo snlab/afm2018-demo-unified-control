@@ -3,7 +3,7 @@ import uuid
 import networkx as nx
 from thespian.actors import *
 from itertools import groupby
-from interpreter import EMPTY
+from napps.snlab.trident_server.trident.interpreter import EMPTY
 
 """
 The runtime takes the graph of variables and creates the decision tree.

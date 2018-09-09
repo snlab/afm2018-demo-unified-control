@@ -1,0 +1,1 @@
+CONFIG_LARK="/home/yutao/Desktop/afm2018-demo-unified-control/kytos-napps/snlab/trident_server/trident/example.lark"

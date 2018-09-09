@@ -3,8 +3,8 @@ import json, uuid
 import networkx as nx
 from functools import reduce
 from lark import Transformer
-from util import error
-from builtin import lookup_builtin_func, Phi
+from napps.snlab.trident_server.trident.util import error
+from napps.snlab.trident_server.trident.builtin import lookup_builtin_func, Phi
 
 def ierror(msg):
     error('interpretation', msg)

@@ -1,5 +1,5 @@
 
-from util import error
+from napps.snlab.trident_server.trident.util import error
 
 def terror(msg):
     error('typechecking', msg)
