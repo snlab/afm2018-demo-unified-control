@@ -8,30 +8,29 @@ class Table(object):
     key: Flow table primary key
     rules: Flow table's set of rules
     """
-    def __init__(self, key, attr):
+    def __init__(self, key, act):
         self.key = key
-        self.attr = attr
+        self.act = act
         self.rules = np.array([], dtype=object)
 
-    def set_dependency(self, parents):
-        self.parents = parents
-        self.inputs = np.array([], dtype=object)
-        self.table
+    # def set_dependency(self, parents):
         # TODO
         # self.parents
         # self.inputs
         # self.table
         # self.updating
 
+    def get_output(self):
+        return act[len(act) - 1]
 
     def add_rules(self, rules):
         """
         add_rules: Add rules to table's set of rules.
         """
         for rule in rules:
-            if len(rule) != len(self.attr):
-                print "Table: Rule has the wrong number of attr: {}".format(rule)
-                print "Attr list is:{}".format(self.attr)
+            if len(rule) != len(self.key) + len(self.act):
+                print("Table: Rule has the wrong number of attr: %s" % rule)
+                print("Attr list is: %s -> %s" % self.key, self.act)
     
         if len(self.rules) > 0:
             self.rules = np.concatenate((self.rules, np.array(rules, dtype=object)), axis=0)
@@ -46,6 +45,10 @@ class Table(object):
         # TODO
         pass
 
+    def equal(self, in0, in1):
+        # TODO
+        return True
+
     def update_accordingly(self, in_table): # in_table are inputs
         # self.parents is array of Node
         
@@ -57,21 +60,15 @@ class Table(object):
         if updating:
             new_inputs = production(self.parents)
 
-            if !equal(inputs, new_inputs):
+            if not self.equal(inputs, new_inputs):
                 # self.executor = factor: <inputs> -> <output>
                 # self.rules = update acoording to executor
                 self.updating = True
 
 
     def __str__(self):
-        not_key_attr = []
-        for attr_i in self.attr[1:]:
-            if attr_i not in self.key:
-                not_key_attr.append(attr_i)
-
         out = "-------\n"
-        out += "{} -> {}\n".format(self.key, not_key_attr)
-        out += "{}\n".format(self.attr)
+        out += "{} -> {}\n".format(self.key, self.act)
         for rule in self.rules:
             out += "{}\n".format(rule)
         out += "-------\n"

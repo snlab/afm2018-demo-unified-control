@@ -8,8 +8,8 @@ def test_lark(larkfile, progfile):
         program = f.read()
         trident.set_ctx_controller("Fake")
         trident.submit(larkfile, program, debug=True)
-        for v in trident.ctx.vnodes:
-            print(v['var'])
+        for t in trident.ctx.tables:
+            print(t)
 
 if __name__ == '__main__':
     test_lark(path + "example.lark", path + "example.tr")

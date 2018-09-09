@@ -13,5 +13,15 @@
         "datatype": "bool",
         "name": "infected",
         "streamtype": "dst-ip"
+    },
+    "http_uri": {
+        "datatype": "string",
+        "name": "http_uri",
+        "streamtype": "tcp-5-tuple"
+    },
+    "authenticated": {
+        "datatype": "bool",
+        "name": "authenticated",
+        "streamtype": "src-ip"
     }
 }

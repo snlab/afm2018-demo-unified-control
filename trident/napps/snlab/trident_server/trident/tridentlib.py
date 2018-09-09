@@ -1,7 +1,6 @@
 import networkx as nx
 # FIXME add it back before push
 #from kytos.core import KytosEvent
-from napps.snlab.trident_server.trident.runtime import LvSystem
 
 class TridentContext(object):
     """
@@ -11,15 +10,15 @@ class TridentContext(object):
     """
     def __init__(self, controller):
         self.parser = None
-        self.interpreter = None
+        self.compiler = None
         self.runtime = None
         self.controller = controller
 
     def set_parser(self, parser):
         self.parser = parser
 
-    def set_interpreter(self, interpreter):
-        self.interpreter = interpreter
+    def set_compiler(self, compiler):
+        self.compiler = compiler
 
     def set_runtime(self, runtime):
         self.runtime = runtime
@@ -43,9 +42,9 @@ class TridentContext(object):
     def parse(self, program):
         self.ast = self.parser.parse(program)
 
-    def interpret(self):
-        self.vgraph, self.vnodes = self.interpreter.interpret(self.ast)
-        return self.vgraph, self.vnodes
+    def compile(self):
+        self.tables = self.compiler.do_compile(self.ast)
+        return self.tables
 
     def launch(self):
         self.runtime.launch(self.vgraph, self.vnodes)
@@ -69,16 +68,16 @@ class TridentServer(object):
         self.program = program
 
         from napps.snlab.trident_server.trident.parser import LarkParser
-        from napps.snlab.trident_server.trident.interpreter import LarkInterpreter
         self.ctx.set_parser(LarkParser(lark))
-        self.ctx.set_interpreter(LarkInterpreter)
-        # self.ctx.set_runtime(LvSystem)
-
         self.ctx.parse(program)
 
+        from napps.snlab.trident_server.trident.compiler import TridentCompiler
+        self.ctx.set_compiler(TridentCompiler())
         if debug:
             print(self.ctx.ast.pretty())
-        self.ctx.interpret()
+        self.ctx.compile()
+
+        # self.ctx.set_runtime(LvSystem)
 
     def new_pkt(self, pkt):
         self.ctx.runtime.new_pkt(pkt)
