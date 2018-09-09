@@ -8,9 +8,8 @@ from kytos.core import KytosNApp, log
 from napps.snlab.trident_server import settings
 from kytos.core.helpers import listen_to
 
-from napps.snlab.trident_server.trident import server as S
 
-import threading
+from gevent import spawn
 
 class Main(KytosNApp):
     """Main class of snlab/trident_server NApp.
@@ -19,6 +18,8 @@ class Main(KytosNApp):
     """
 
     def run_trident_server(self):
+        from napps.snlab.trident_server.trident import server as S
+        S.trident.set_controller(self.controller)
         S.http_server.serve_forever()
 
     def setup(self):
@@ -29,18 +30,9 @@ class Main(KytosNApp):
 
         So, if you have any setup routine, insert it here.
         """
-
-        S.trident.set_controller(self.controller)
-
-        tt = threading.Thread(target=self.run_trident_server)
-        tt.daemon = True
-        tt.start()
-
         self.nodes = {}
         self.edges = {}
-
         self.topology_not_set = True
-
         log.info('trident server start')
 
     def execute(self):
@@ -51,6 +43,7 @@ class Main(KytosNApp):
 
             self.execute_as_loop(30)  # 30-second interval.
         """
+        spawn(self.run_trident_server)
         log.info('trident server execute')
 
     @listen_to('.*.reachable.mac')
