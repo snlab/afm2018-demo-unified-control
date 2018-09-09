@@ -47,4 +47,4 @@ def new_packet():
     return 'ok'
 
 http_server = WSGIServer(('', 12321), app)
-http_server.serve_forever()
+#http_server.serve_forever()

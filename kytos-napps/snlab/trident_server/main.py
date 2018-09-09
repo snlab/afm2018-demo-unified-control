@@ -8,7 +8,7 @@ from kytos.core import KytosNApp, log
 from napps.snlab.trident_server import settings
 from kytos.core.helpers import listen_to
 
-from napps.snalb.trident_server.trident import server as S
+from napps.snlab.trident_server.trident import server as S
 
 import threading
 
