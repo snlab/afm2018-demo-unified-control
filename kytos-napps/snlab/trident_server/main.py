@@ -18,8 +18,8 @@ class Main(KytosNApp):
     """
 
     def run_trident_server(self):
-        
-        S.trident.set_controller(self.controller)
+        log.info('start to run')
+        S.trident.set_ctx_controller(self.controller)
         S.http_server.serve_forever()
 
     def setup(self):
@@ -88,11 +88,11 @@ class Main(KytosNApp):
         links = topology.links
         for key in links:
             link = links[key]
-            endpoint_a = link['endpoint_a']
-            endpoint_a_id = endpoint_a['id']
+            endpoint_a = link.endpoint_a
+            endpoint_a_id = str(endpoint_a.switch.dpid) + ":" + str(endpoint_a.port_number)
 
-            endpoint_b = link['endpoint_b']
-            endpoint_b_id = endpoint_b['id']
+            endpoint_b = link.endpoint_b
+            endpoint_b_id = str(endpoint_b.switch.dpid) + ":" + str(endpoint_b.port_number)
 
             link_id_ab = str(endpoint_a_id) + "+" + str(endpoint_b_id)
             link_id_ba = str(endpoint_b_id) + "+" + str(endpoint_a_id)
@@ -108,4 +108,4 @@ class Main(KytosNApp):
 
         If you have some cleanup procedure, insert it here.
         """
-        pass
+        S.http_server.stop()

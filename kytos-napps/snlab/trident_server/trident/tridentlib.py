@@ -11,11 +11,20 @@ class TridentContext(object):
     and gives access to network topology so that they can be
     used in a program.
     """
-    def __init__(self, parser, interpreter, runtime, controller):
-        self.parser = parser
-        self.interpreter = interpreter
-        self.runtime = runtime
+    def __init__(self, controller):
+        self.parser = None
+        self.interpreter = None
+        self.runtime = None
         self.controller = controller
+
+    def set_parser(self, parser):
+        self.parser = parser
+
+    def set_interpreter(self, interpreter):
+        self.interpreter = interpreter
+
+    def set_runtime(self, runtime):
+        self.runtime = runtime
 
     '''
     ctx.nodes = { "s1": { "role": "sw"  }, "s2": { "role": "sw"  }, "h1": {
@@ -74,10 +83,9 @@ class TridentServer(object):
     def __init__(self):
         self.program = ""
         self.ctx = None
-        self.controller = None
 
-    def set_controller(self, controller):
-        self.controller = controller
+    def set_ctx_controller(self, controller):
+        self.ctx = TridentContext(controller)
 
     def submit(self, lark, program, debug=False):
         self.program = program
@@ -85,9 +93,9 @@ class TridentServer(object):
         from parser import LarkParser
         from interpreter import LarkInterpreter
 
-        self.ctx = TridentContext(LarkParser(lark),
-                                  LarkInterpreter(), LvSystem(),
-                                  self.controller)
+        self.ctx.set_parser(LarkParser(lark))
+        self.ctx.set_interpreter(LarkInterpreter)
+        self.ctx.set_runtime(LvSystem)
 
         self.ctx.parse(program)
 
