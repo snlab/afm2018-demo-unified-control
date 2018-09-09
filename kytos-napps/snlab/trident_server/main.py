@@ -8,8 +8,7 @@ from kytos.core import KytosNApp, log
 from napps.snlab.trident_server import settings
 from kytos.core.helpers import listen_to
 
-from trident.server import http_server
-from trident.server import trident
+from napps.snalb.trident_server.trident import server as S
 
 import threading
 
@@ -20,7 +19,7 @@ class Main(KytosNApp):
     """
 
     def run_trident_server(self):
-        http_server.serve_forever()
+        S.http_server.serve_forever()
 
     def setup(self):
         """Replace the '__init__' method for the KytosNApp subclass.
@@ -30,13 +29,17 @@ class Main(KytosNApp):
 
         So, if you have any setup routine, insert it here.
         """
-        self.first_get_topology = True
 
-        trident.set_controller(self.controller)
+        S.trident.set_controller(self.controller)
 
         tt = threading.Thread(target=self.run_trident_server)
         tt.daemon = True
         tt.start()
+
+        self.nodes = {}
+        self.edges = {}
+
+        self.topology_not_set = True
 
         log.info('trident server start')
 
@@ -74,12 +77,38 @@ class Main(KytosNApp):
     @listen_to('kytos/topology.updated')
     def handle_topology_update(self, event):
         topology = event.content['topology']
+        if self.topology_not_set:
+            self.set_nodes(topology)
+            self.set_edges(topology)
 
-    def get_nodes(self, topology):
-        pass
+            S.trident.ctx.set_topology(self.nodes, self.edges)
 
-    def get_edges(self, topology):
-        pass
+            S.trident.ctx.test()
+
+    def set_nodes(self, topology):
+        switches = topology.switches
+        for key in switches:
+            switch_dpid = key
+            self.nodes[str(switch_dpid)] = {"role": "sw"}
+
+    def set_edges(self, topology):
+        links = topology.links
+        for key in links:
+            link = links[key]
+            endpoint_a = link['endpoint_a']
+            endpoint_a_id = endpoint_a['id']
+
+            endpoint_b = link['endpoint_b']
+            endpoint_b_id = endpoint_b['id']
+
+            link_id_ab = str(endpoint_a_id) + "+" + str(endpoint_b_id)
+            link_id_ba = str(endpoint_b_id) + "+" + str(endpoint_a_id)
+
+            self.edges[link_id_ab] = {"src": str(endpoint_a_id), "dst":
+                                      str(endpoint_b_id)}
+            self.edges[link_id_ba] = {"src": str(endpoint_b_id), "dst":
+                                      str(endpoint_a_id)}
+
 
     def shutdown(self):
         """This method is executed when your napp is unloaded.

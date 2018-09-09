@@ -65,6 +65,10 @@ class TridentContext(object):
     def stop(self):
         self.runtime.stop()
 
+    def test(self):
+        print(len(self.nodes))
+        print(len(self.edges))
+
 class TridentServer(object):
     def __init__(self):
         self.program = ""
