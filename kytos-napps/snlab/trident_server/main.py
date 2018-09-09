@@ -7,7 +7,7 @@ from kytos.core import KytosNApp, log
 
 from napps.snlab.trident_server import settings
 from kytos.core.helpers import listen_to
-
+from napps.snlab.trident_server.trident import server as S
 
 from gevent import spawn
 
@@ -18,7 +18,7 @@ class Main(KytosNApp):
     """
 
     def run_trident_server(self):
-        from napps.snlab.trident_server.trident import server as S
+        
         S.trident.set_controller(self.controller)
         S.http_server.serve_forever()
 
