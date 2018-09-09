@@ -5,11 +5,13 @@ preamble: declaration*
 declaration: _NEWLINE -> empty
              | symbol "=" stream_attribute _NEWLINE -> sa_dec
              | symbol "=" network_state _NEWLINE -> ns_dec
+             | symbol "=" way_point _NEWLINE -> wp_dec
              | symbol "=" expr _NEWLINE -> expr_dec
 stream_attribute: "StreamAttribute" "(" STRING "," STRING "," STRING ")"
                   | "StreamAttribute.load" "(" STRING "," STRING ")"
 network_state: "NetworkState" "(" STRING "," STRING "," STRING ")"
                | "NetworkState.load" "(" STRING "," STRING ")"
+way_point: "WayPoint(role='" STRING "')"
 
 program: "program" statements
 

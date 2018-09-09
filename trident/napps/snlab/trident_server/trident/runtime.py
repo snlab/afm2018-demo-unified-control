@@ -256,22 +256,26 @@ class LvSystem(object):
     def stop(self):
         pass
 
-    def new_packet(self, pkt):
-        self.q.put(PullAction(self.lvs[self.vnode], pkt))
-
     def get_match(self, sa_name, pkt):
         pass
 
     def get_value(self, sa_name, value):
         pass
 
-    def new_value(self, sa_name, pkt, value):
+    def new_pkt(self, pkt):
+        self.q.put(PullAction(self.lvs[self.vnode], pkt))
+        # TODO return table
+
+    def update_sa(self, sa_name, pkt, value):
         # TODO
         match = self.get_match(sa_name, pkt)
         value = self.get_value(sa_name, value)
         var = self.sa_dict[sa_name]
         self.q.put(self.lvs[var].new_value(match, value))
         # first send propagate message, then sync/nosync message
+
+    def update_topology():
+        pass
 
 if __name__ == '__main__':
     lvs = LvSystem()
