@@ -17,11 +17,11 @@ pkt: "pkt" -> forward_pkt
 condition: "(" expr ")"
 
 expr: expr2 binary_op1 expr2 -> bi_expr
-    | expr2 -> pass
+    | expr2
 expr2: expr3 binary_op2 expr3 -> bi_expr
-     | expr3 -> pass
+     | expr3
 expr3: unary_op symbol -> un_expr
-     | expr4 -> pass
+     | expr4
 expr4: value -> single_value
      | symbol -> single_symbol
      | function
