@@ -1,8 +1,9 @@
 
 import networkx as nx
-from runtime import LvSystem
-
 from kytos.core import KytosEvent
+
+from napps.snlab.trident_server.trident.runtime import LvSystem
+
 
 class TridentContext(object):
     """
