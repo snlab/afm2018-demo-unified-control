@@ -13,12 +13,12 @@ def files(dirname):
 
 
 setup(
-    name="nccontainer",
-    version="0.1",
-    description="Network Consistency Container",
-    url="https://github.com/fno2010/nccontainer",
-    author="Jensen Zhang",
-    author_email="hack@jensen-zhang.site",
+    name="DDP with Update Algebra",
+    version="0.2",
+    description="DDP with Update Algebra",
+    url="https://snlab.org",
+    author="SNLab",
+    author_email="user@snlab.org",
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
@@ -31,6 +31,6 @@ setup(
     packages=find_packages(),
     package_data={},
     install_requires=read('requirements.txt').splitlines(),
-    scripts=files('bin'),
+    # scripts=files('bin'),
     zip_safe=False
 )

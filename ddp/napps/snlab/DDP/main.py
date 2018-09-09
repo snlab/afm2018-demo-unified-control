@@ -10,6 +10,7 @@ from napps.snlab.DDP import settings
 from kytos.core.helpers import listen_to
 from pyof.foundation.network_types import Ethernet, EtherType, IPv4
 from pyof.foundation.basic_types import DPID, UBInt16, UBInt32
+from pyof.foundation.basic_types import IPAddress
 from pyof.foundation.network_types import LLDP, Ethernet, EtherType, VLAN
 from pyof.v0x01.common.action import ActionOutput as AO10
 from pyof.v0x01.common.phy_port import Port as Port10
@@ -101,13 +102,55 @@ class Main(KytosNApp):
     @rest('v1/setup', methods=['POST'])
     def on_setup_rest(self):
         parm = request.get_json()
-        log.info("on_setup_rest %s"%str(parm))
+        log.debug("on_setup_rest %s"%str(parm))
         return jsonify("Not support now"), 404
 
     @listen_to('snlab/ddp/setup')
     def on_setup(self, event):
-        log.info("on_setup %s"%str(event.content))
-        self.__setup_path(*event.content)
+        log.debug("on_setup %s"%str(event.content))
+        path_table = self.__special_convert(event.content)
+        self.__setup_path_list(path_table) # TODO
+
+    def __special_convert(self, table):
+        convert = []
+        IPTYPE = b'\x08\x00'
+        for tr in table:
+            priority = tr[0]
+            match = {"eth_type": IPTYPE}
+            tr1 = tr[1]
+            sip = tr1.get("sip")
+            if sip:
+                match["ip_src"]=IPAddress(sip).pack()
+            dip = tr1.get("dip")
+            if dip:
+                match["ip_dst"]=IPAddress(dip).pack()
+            proto = tr1.get("proto")
+            sport = tr1.get('sport')
+            dport = tr1.get('dport')
+            if proto=="udp":
+                match["ip_proto"] = b'\x11'
+                if sport:
+                    match["udp_src"] = UBInt16(sport).pack()
+                if dport:
+                    match["udp_dst"] = UBInt16(dport).pack()
+            if proto=="tcp":
+                match["ip_proto"] = b'\x06'
+                if sport:
+                    match["tcp_src"] = UBInt16(sport).pack()
+                if dport:
+                    match["tcp_dst"] = UBInt16(dport).pack()
+            tr2 = tr[2]
+            seq = []
+            fmap = {}
+            for n,p in tr2:
+                if n not in fmap:
+                    fmap[n]={p}
+                    seq.append(n)
+                else:
+                    fmap[n].add(p)
+            path = [(n,fmap[n]) for n in seq]
+            convert.append((priority, match, path))
+        return convert
 
     @listen_to('kytos/topology.updated')
     def on_topology_update(self, event):
@@ -117,8 +160,8 @@ class Main(KytosNApp):
         topo = event.content['topology']
         log.info('topology update')
 
-    def __setup_path(self, priority, match, path):
-        self.plugin.setupPath(priority, match, path)
+    def __setup_path_list(self, path_table):
+        self.plugin.setupPathList(path_table)
 
     @listen_to('kytos/of_core.v0x0[14].messages.in.ofpt_packet_in')
     def test(self, event):

@@ -6,7 +6,7 @@ formatter = logging.Formatter('%(message)s')
 output = logging.StreamHandler(sys.stdout)
 output.setFormatter(formatter)
 logger.addHandler(output)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 LEVELS = {
     'debug': logging.DEBUG,
