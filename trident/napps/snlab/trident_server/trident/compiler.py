@@ -54,6 +54,7 @@ ts = Transformer()
 class LiveVariables(object):
     def __init__(self):
         self.sa = {}
+        self.wp = {}
 
     def regist_sa(self, ast):
         assert ast.data == 'stream_attribute'
@@ -72,9 +73,10 @@ class LiveVariables(object):
         self.sa[name] = StreamAttribute(name, "unknown", attr['datatype'], attr['streamtype'])
         return "SA-" + name
 
-    def regist_wp(self, ast):
+    def regist_wp(self, ast, name):
         assert ast.data == 'way_point'
-        return "Role-" + ts.string(ast.children[0])
+        role = ts.string(ast.children[0])
+        self.wp[name] = role
         
     def __str__(self):
         ret = ""
@@ -90,67 +92,62 @@ class TridentCompiler(object):
         self.tables = []
         self.symbols = {} # output -> corresponding table
 
-    def add_virtual_sink(self, cb): # TODO
-        appeared = {}
-        for v in reversed(self.vnodes):
-            var = v['var']
-            if var.typeinfo == 'binding' and var.symbol not in appeared:
-                appeared[var.symbol] = var
-
-        v = cb.new_variable('virtualsink', 'binding')
-        op = self.do_compile_op('virtualsink', cb, ['binding'] * len(appeared))
-        self.new_vnode(v, op, appeared.keys())
-
-    def compile_cond(ast): # compile a whole condition as a single table
-        # TODO
-        return
+    def compile_cond(ast, in_g):
+        assert ast.data == 'condition'
+        # TODO modularize for compile()
         
-    def compile_bind(ast): # compile a bind as a single table
-        # TODO
-        return
+    def compile_bind(ast, in_g):
+        assert ast.data == 'bind'
+        # TODO modularize for compile()
+
+    def calc_ra(self, ast): # TODO
+        """
+        return Table((start, end) -> (R)),
+        where variable R represents path, 
+        and capacity is not included in demo
+        """
+        assert ast.data == 'ra_dec'
+        return Table([], [], ast)
 
     def do_compile(self, ast):
         for k in HEADERFIELD_TABLE:
             name = "pkt." + k
             self.symbols[name] = len(self.tables)
-            self.tables.append(Table([k], [name]))
+            self.tables.append(Table([k], [name], 'header'))
 
         self.compile(ast, "None")
 
-        # add virtual sink
         key = []
         for t in self.binds:
             key.append(t.get_output())
-        self.tables.append(Table(key, ["Path"]))
+        self.tables.append(Table(key, ["Path"], 'super_sink'))
 
         return self.tables
 
     def compile(self, ast, in_g): # WARNING: only implement a subset of "subset grammar"
-        if ast.data in ['start', 'pass', 'program']:
+        if ast.data in ['start', 'pass', 'program', 'expr', 'expr2', 'expr3', 'expr4']: # structure tokens w/o meaning
             for child in ast.children:
                 self.compile(child, in_g)
         elif 'sa_dec' == ast.data:
             name = ts.variable(ast.children[0])
             self.symbols[name] = len(self.tables)
-            self.tables.append(Table([lv.regist_sa(ast.children[1])], [name]))
-        elif 'wp_dec' == ast.data:
+            self.tables.append(Table([lv.regist_sa(ast.children[1])], [name], 'stream_attribute'))
+        elif 'wp_dec' == ast.data: # Regist Waypoint w/o generating table
             name = ts.variable(ast.children[0])
+            lv.regist_wp(ast.children[1], name)
+        elif 'ra_dec' == ast.data: # Constructing table for route-algebra (which reads Waypoints)
+            name = ts.variable(ast.children[0]) 
             self.symbols[name] = len(self.tables)
-            self.tables.append(Table([lv.regist_wp(ast.children[1])], [name]))
-        elif 'ra_dec' == ast.data:
-            pass
-            # TODO
-            # constructing Paths according to Topology, Waypoint and Ra-expression
-        elif 'bi_branches' == ast.data: # WARNING: only the following instructions can have guard
+            self.tables.append(self.calc_ra(ast))
+        elif 'bi_branches' == ast.data: # WARNING: only the following instructions can have guard variable
             condition, t_branch, f_branch = ast.children
-            self.compile(condition, in_g)
+            self.compile_cond(condition, in_g)
             out_g = self.tables[len(self.tables) - 1].get_output()
             self.compile(t_branch, "1" + out_g)
             self.compile(f_branch, "0" + out_g)
-        elif 'condition' == ast.data:
-            self.compile_bind(ast.children)
         elif 'bind' == ast.data:
-            self.compile_bind(ast.children)
-            self.binds.append(len(self.tables) - 1)
+            self.compile_bind(ast, in_g)
         else:
             print("Unknown instruction: %s" % ast.data)
+
+tc = TridentCompiler()

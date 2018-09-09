@@ -8,10 +8,13 @@ class Table(object):
     key: Flow table primary key
     rules: Flow table's set of rules
     """
-    def __init__(self, key, act):
+    def __init__(self, key, act, typ = 'assignment'):
         self.key = key
         self.act = act
+        self.typ = typ # typ includes 'assignment', 'header', 'stream_attribute', 'phi', 'super_sink' and ast('route-algebra')
         self.rules = np.array([], dtype=object)
+        # records: inputs, itself
+        # tags: updating -> true means the table has changed
 
     # def set_dependency(self, parents):
         # TODO

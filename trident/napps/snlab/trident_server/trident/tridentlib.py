@@ -71,8 +71,8 @@ class TridentServer(object):
         self.ctx.set_parser(LarkParser(lark))
         self.ctx.parse(program)
 
-        from napps.snlab.trident_server.trident.compiler import TridentCompiler
-        self.ctx.set_compiler(TridentCompiler())
+        from napps.snlab.trident_server.trident.compiler import tc
+        self.ctx.set_compiler(tc)
         if debug:
             print(self.ctx.ast.pretty())
         self.ctx.compile()
