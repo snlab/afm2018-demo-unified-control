@@ -1,6 +1,17 @@
 import uuid
 import numpy as np
 
+class Packet(object):
+    def __init__(self, sip, dip, sport, dport, ipproto):
+        self.sip = sip
+        self.dip = dip
+        self.sport = sport
+        self.dport = dport
+        self.ipproto = ipproto
+
+    def __repr__(self):
+        return '<%s,%s,%d,%d,%s>' % (self.sip, self.dip, self.sport, self.dport, self.ipproto)
+
 class Table(object):
     """
     Table: Flow table data structure. 
@@ -40,7 +51,7 @@ class Table(object):
         add_rules: Add rules to table's set of rules.
         """
         for rule in rules:
-            if len(rule) != len(self.key) + len(self.act):
+            if len(rule) != 1 + len(self.key) + len(self.act):
                 print("Table: Rule has the wrong number of attr: %s" % rule)
                 print("Attr list is: %s -> %s" % self.key, self.act)
     
