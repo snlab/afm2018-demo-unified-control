@@ -26,6 +26,8 @@ def test_hard():
     print(trident.generate_table())
 
     trident.set_sa('authenticated', pkt, 'true')
+    print(trident.generate_table())
+
     trident.set_sa('http_uri', pkt, 'www.xyz.com')
     print(trident.generate_table())
 

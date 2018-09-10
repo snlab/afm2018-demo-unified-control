@@ -13,6 +13,7 @@ class TridentContext(object):
         self.controller = controller
         
         self.packets = []
+        self.records = {}
         self.sa = {}
 
     def set_parser(self, parser):
@@ -108,7 +109,11 @@ class TridentContext(object):
     match = {"sip": "192.168.1.1", "dip": ..., "sport": 20} same with Packet
     path = [("00:00:00:00:00:00:00:01", 1), (...)]
     '''
-    def generate_rule(self, pkt):
+    def generate_rule(self, pkt, topo_down = False):
+        if topo_down and pkt in self.records.keys() and self.alive(self.records[pkt]):
+            self.table.add_rules(self.records[pkt])
+            return
+
         r = 'null'
         symbol_h = 'http_uri' + str(pkt)
         symbol_a = 'authenticated' + pkt.sip
@@ -117,28 +122,56 @@ class TridentContext(object):
                 for p in self.p2:
                     l = len(p)
                     if int(p[1][1][0]) == pkt.sport and p[l - 1][0] == pkt.dip:
-                        self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]])
+                        rules = [["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]]
+                        self.table.add_rules(rules)
+                        self.records[pkt] = rules
                         break
             else:
                 for p in self.p1:
                     l = len(p)
                     if int(p[1][1][0]) == pkt.sport and p[l - 1][0] == pkt.dip:
-                        self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]])
+                        rules = [["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]]
+                        self.table.add_rules(rules)
+                        self.records[pkt] = rules
                         break
-       
-        # WARNING: hardcode to add default rule
-        for p in self.p3:
-            if int(p[1][1][0]) == pkt.sport:
-                self.table.add_rules([["1", pkt.sip, '*', '*', '*', '*', p], ["1", '*', pkt.sip, '*', '*', '*', self.reverse(p)]])
-                break
+        else:
+            for p in self.p3:
+                if int(p[1][1][0]) == pkt.sport:
+                    rules = [["1", pkt.sip, '*', '*', '*', '*', p], ["1", '*', pkt.sip, '*', '*', '*', self.reverse(p)]]
+                    self.table.add_rules(rules)
+                    self.records[pkt] = rules
+                    break
         
-    def generate_table(self): 
+    def generate_table(self, topo_down = False): 
         self.table = Table(['sip', 'dip', 'sport', 'dport', 'ipproto'], ['path'])
         for pkt in self.packets:
-            self.generate_rule(pkt)
+            self.generate_rule(pkt, topo_down)
         return self.table
 
-    def reverse(self, p):
+    def alive(self, rules):
+        p = rules[1][6]
+        prv = 'null'
+        for t in p:
+            if not prv == 'null':
+                flag = False
+                for edge in self.edges.values():
+                    src = edge['src']
+                    if len(src) > 23:
+                        src = src[0:23]
+
+                    dst = edge['dst']
+                    if len(dst) > 23:
+                        dst = dst[0:23]
+
+                    if src == prv and dst == t[0]:
+                        flag = True
+                        break
+                if not flag: return False
+            prv = t[0]
+
+        return True
+
+    def reverse(self, p): # FIXME C -> DPI, S should be reversed to S -> DPI, C
         t = []
         for x in range(len(p) - 1, -1, -1):
             k = p[x]
