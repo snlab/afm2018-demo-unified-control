@@ -6,7 +6,7 @@ source "$VENV/bin/activate"
 
 ROOT=$(dirname $DIR)
 
-export PYTHONPATH=$ROOT/ddp:$PYTHONPATH
+export PYTHONPATH=$ROOT/ddp/lib:$PYTHONPATH
 
 kytosd -f $1
 

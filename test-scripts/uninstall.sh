@@ -6,7 +6,6 @@ source "$VENV/bin/activate"
 
 ROOT=$(dirname $DIR)
 
-export PYTHONPATH=$ROOT/ddp/nccontainer:$PYTHONPATH
 
 function help {
 	echo "Usage: ";
