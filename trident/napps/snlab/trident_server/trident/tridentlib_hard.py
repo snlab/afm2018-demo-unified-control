@@ -171,9 +171,13 @@ class TridentContext(object):
 
         return True
 
-    def reverse(self, p): # FIXME C -> DPI, S should be reversed to S -> DPI, C
+    def reverse(self, p): 
         t = []
         for x in range(len(p) - 1, -1, -1):
             k = p[x]
-            t.append([k[0], k[2], k[1]])
+            if len(k[2]) > 1: # hardcode C -> DPI, S should be reversed to S -> DPI, C
+                t.append([k[0], [k[2][0]], [k[1][0], k[2][1]]])
+            else:
+                t.append([k[0], k[2], k[1]])
+
         return t
