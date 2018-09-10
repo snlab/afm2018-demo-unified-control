@@ -38,6 +38,12 @@ class ExtendCLI(CLI):
                 info(line+"\n")
                 self.onecmd(line)
 
+    def do_setup(self, _line):
+        for i in self.mn.hosts:
+            cmd = "%s ping 10.0.0.254 -c 1"%str(i)
+            print(cmd)
+            self.onecmd(cmd)
+
     def do_clear(self, _line):
         """
         self-defined command, clear all OpenFlow rules
@@ -158,9 +164,14 @@ def stop_ddp_switchproxy(process):
         os.killpg(os.getpgid(p.pid), signal.SIGTERM)
 
 
+def add_default_flow_rules(topo):
+    for sw in topo["switches"]:
+        call('ovs-ofctl add-flow %s "priority=0,actions=CONTROLLER:65535"'%sw, shell=True)
+
 def start_net(topo, args):
     setLogLevel('info')
     net = confignet(topo, args)
+    add_default_flow_rules(topo)
     if args.ddp:
         process = start_ddp_switchproxy(topo, args.ddpcontroller)
     cmds_initial = None
