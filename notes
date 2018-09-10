@@ -1,0 +1,16 @@
+bro:
+sudo /usr/local/bro/bin/bro -i vnf-eth0 http_url_mode.bro -C
+
+freeradius:
+
+freeradius-server:
+cd ~/afm-demo/freeradius-server/raddb
+//check mods-config/files/authorize
+sudo radiusd -X d .
+
+radius-client:
+radtest steve testing localhost:9000 0 testing123
+
+mininet:
+sudo python topogen.py config/demo5.yaml
+setup

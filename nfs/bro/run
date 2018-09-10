@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+DEV=${1:?"Usage $0 DEV BRO_SCRIPT"}
+BROSCRIPT=${2:?"Usage: $0 DEV BROSCRIPT"}
+
+docker run --rm \
+       --cap-add=NET_RAW --net=host \
+       -v `pwd`/trident.bro:/usr/local/share/bro/site/trident.bro \
+       -v `pwd`/$BROSCRIPT:/usr/local/share/bro/site/local.bro \
+       blacktop/bro -i $DEV local

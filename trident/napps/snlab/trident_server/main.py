@@ -60,7 +60,7 @@ class Main(KytosNApp):
 
         self.interface2DirLink = {}
 
-        self.debug = False
+        self.debug = True
 
         log.info('Main setup')
 
