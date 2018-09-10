@@ -60,7 +60,7 @@ class Main(KytosNApp):
 
         self.interface2DirLink = {}
 
-        self.debug = True
+        self.debug = False
 
         log.info('Main setup')
 
@@ -270,8 +270,6 @@ class Main(KytosNApp):
             
             if not self.debug:
                 self.trident.set_topology(self.nodes, self.edges)
-
-            self.trident.test()
 
             self.topology_not_set = False
 
