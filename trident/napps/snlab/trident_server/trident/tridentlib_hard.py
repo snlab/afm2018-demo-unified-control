@@ -24,26 +24,41 @@ class TridentContext(object):
     def set_runtime(self, runtime):
         self.runtime = runtime
 
-    def dfs(self, node, snode = '', port = ''):
-        key, value = node
-        l = self.cp.length()
-        self.cp.append(node, snode, port)
+    def dfs(self, node, sport = ''):
+        key = node[0]
+        
+        self.cp.append(key, sport)
+        p = self.cp.formated_path()
+        l = len(p) - 1
+        if l > 0 and 'client' == self.nodes[p[0][0]]['role']:
+            if 'aaa' == self.nodes[p[l][0]]['role']:
+                self.p3.append(p)
 
+            if 'server' == self.nodes[p[l][0]]['role']:
+                self.p2.append(p)
 
-        if l > 1:
-            if  'client' == self.cp.get_type(0):
-                if 'aaa' == self.cp.get_type(l):
-                    self.p3.append(self.cp.formated_path())
+                for edge in self.edges.values():
+                    dst = edge['dst']
+                    if len(dst) > 23:
+                        dst = dst[0:23]
 
-                if 'server' == self.cp.get_type(l):
-                    self.p2.append(self.cp.formated_path())
-                    flag = False
-                    for i in [1, l - 1]:
-                        if 'dpi' == self.cp.get_type(i):
-                            flag = True
-                    if flag:
-                        self.p1.append(self.cp.formated_path())
+                    if 'dpi' == self.nodes[dst]['role']:
+                        if self.cp.has(dst):
+                            self.p1.append(p)
+                            break
+                        else:
+                            src = edge['src']
+                            if len(src) > 23:
+                                src = src[0:23]
 
+                            for tup in p:
+                                if src == tup[0]:
+                                    self.cp.multi_cast(src, edge['src'][24:])
+                                    self.p1.append(self.cp.formated_path())
+                                    self.cp.canceal_mc(src)
+                                    break
+        self.cp.pop()
+                        
         for edge in self.edges.values():
             src = edge['src']
             if len(src) > 23:
@@ -53,13 +68,13 @@ class TridentContext(object):
             if len(dst) > 23:
                 dst = dst[0:23]
 
+            self.cp.append(key, sport, edge['src'][24:])
             if src == key and not self.cp.has(dst):
                 t = dst, self.nodes[dst]
-                self.dfs(t, node, edge['src'][24:])
+                self.dfs(t, edge['dst'][24:])
+            self.cp.pop()
 
-        self.cp.pop()
-
-    def set_topology(self, nodes, edges):
+    def set_topology(self, nodes, edges, DEBUG = False):
         self.nodes = nodes
         self.edges = edges
         
@@ -71,7 +86,10 @@ class TridentContext(object):
         for node in self.nodes.items():
             self.dfs(node)
 
-        # print(self.p2)
+        if DEBUG:
+            for p in self.p2:
+                print(p)
+                print("\n")
 
     def set_sa(self, name, pkt, value):
         if 'http_uri' == name:
@@ -98,22 +116,20 @@ class TridentContext(object):
             if symbol_h in self.sa and self.sa[symbol_h] == "www.xyz.com":
                 for p in self.p2:
                     l = len(p)
-
-                    print(p)
-                    if int(p[1][1]) == pkt.sport and p[l - 1][0] == pkt.dip:
-                        self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, p.reverse()]])
+                    if int(p[1][1][0]) == pkt.sport and p[l - 1][0] == pkt.dip:
+                        self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]])
                         break
             else:
                 for p in self.p1:
                     l = len(p)
-                    if int(p[1][1]) == pkt.sport and p[l - 1][0] == pkt.dip:
-                        self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, p.reverse()]])
+                    if int(p[1][1][0]) == pkt.sport and p[l - 1][0] == pkt.dip:
+                        self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]])
                         break
        
         # WARNING: hardcode to add default rule
         for p in self.p3:
-            if p[0][0] == pkt.sip:
-                self.table.add_rules([["1", pkt.sip, '*', '*', '*', '*', p], ["1", '*', pkt.sip, '*', '*', '*', p.reverse()]])
+            if int(p[1][1][0]) == pkt.sport:
+                self.table.add_rules([["1", pkt.sip, '*', '*', '*', '*', p], ["1", '*', pkt.sip, '*', '*', '*', self.reverse(p)]])
                 break
         
     def generate_table(self): 
@@ -121,3 +137,10 @@ class TridentContext(object):
         for pkt in self.packets:
             self.generate_rule(pkt)
         return self.table
+
+    def reverse(self, p):
+        t = []
+        for x in range(len(p) - 1, -1, -1):
+            k = p[x]
+            t.append([k[0], k[2], k[1]])
+        return t

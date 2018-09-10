@@ -3,46 +3,49 @@ import numpy as np
 
 class Path(object): # FIXME: 1. how to handle reverse path? 2. how to handle sport? 3. how to handle multi-cast?
     def __init__(self):
-        self.nodes = []
-        self.ports ={}
-        self.rports = {}
+        self.keys = []
+        self.sports = {}
+        self.dports = {}
 
-    def append(self, node, snode = '', port = '', rport = ''):
-        self.nodes.append(node)
-        if not snode == '':
-            self.ports[snode[0]] = port
+    def multi_cast(self, key, dport):
+        self.dports[key].append(dport)
+
+    def canceal_mc(self, key):
+        self.dports[key] = [self.dports[key][0]]
+
+    def append(self, key, sport = '', dport = ''):
+        self.keys.append(key)
+        self.sports[key] = [sport]
+        self.dports[key] = [dport]
     
     def pop(self):
-        self.nodes.pop()
+        self.keys.pop()
 
     def has(self, node_key):
-        for node in self.nodes:
-            if node[0] == node_key:
+        for key in self.keys:
+            if key == node_key:
                 return True
         return False
 
     def length(self):
-        return len(self.nodes)
+        return len(self.keys)
 
-    def reverse(self): #FIXME
+    def reverse(self):
         p = Path()
-        for node in self.nodes:
-            p.append(node)
-        p.nodes.reverse()
+        for key in self.keys:
+            p.append(key)
+        p.keys.reverse()
+        p.dports = self.sports
+        p.sports = self.dports
         return p
 
-    def get_type(self, pos):
-        key, value = self.nodes[pos]
-        return value['role']
+    def get_type(self, k):
+        return self.type[k]
 
     def formated_path(self):
         ret = []
-        for node in self.nodes:
-            if node[0] in self.ports.keys():
-                port = self.ports[node[0]]
-            else:
-                port = ''
-            ret.append([node[0], port])
+        for key in self.keys:
+            ret.append([key, self.sports[key], self.dports[key]])
         return ret
 
 class Packet(object):
