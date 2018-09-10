@@ -21,8 +21,15 @@ def test_hard():
     trident.set_topology(nodes, edges)
     print(trident.generate_table())
 
-    pkt = Packet('10.0.0.2', '10.0.0.1', 4, 80, 22)
+    pkt = Packet('10.0.0.2', '10.0.0.1', 4, 80, 'udp')
     trident.set_pkt(pkt)
+
+    pkt = Packet('10.0.0.2', '10.0.0.1', 4, 80, 'udp')
+    trident.set_pkt(pkt)
+    
+    pkt = Packet('10.0.0.2', '10.0.0.1', 4, 80, 'udp')
+    trident.set_pkt(pkt)
+
     print(trident.generate_table())
 
     trident.set_sa('authenticated', pkt, 'true')
