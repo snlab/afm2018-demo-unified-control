@@ -26,6 +26,9 @@ class UpdateScheduler(Thread):
         logger.info("update scheduler start")
         while True:
             e = self.__msg_queue.get()
+            if e is None:
+                logger.info("UpdateScheduler exited")
+                return
             logger.info("msg = %s", str(e))
             if isinstance(e, Topology):
                 self.__update_topology(e)

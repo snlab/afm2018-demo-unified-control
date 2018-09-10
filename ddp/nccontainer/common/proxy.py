@@ -126,6 +126,7 @@ class Proxy:
         return ConnectHandler(reader, writer, self._forward_addr, self._forward_port, self)
     
     def main_loop(self):
+        self.logger.warn("Proxy main_loop")
         # loop = asyncio.get_event_loop()
         loop =  asyncio.new_event_loop()
         self.loop = loop
@@ -135,8 +136,11 @@ class Proxy:
         except KeyboardInterrupt:
             pass
         # Close the server
+        self.logger.warn("run_forever exited")
         self._server.close()
+        self.logger.warn("self._server.close")
         loop.run_until_complete(self._server.wait_closed())
+        self.logger.warn("self._server.wait_closed()")
         loop.close()
 
     def start_server(self, loop):
@@ -156,7 +160,9 @@ class Proxy:
         self.logger.info('Serving on {}'.format(self._server.sockets[0].getsockname()))
 
     def stop(self):
-        self.loop.stop()
+        def _stop():
+            self.loop.stop()
+        self.loop.call_soon_threadsafe(_stop)
 
 
 if __name__=="__main__":

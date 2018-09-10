@@ -13,6 +13,7 @@ class _ProxyThread(Thread):
 
     def run(self):
         self.__server.main_loop()
+        logger.info("ProxyThread exited")
 
 
 class ControllerPlugin:
@@ -29,8 +30,8 @@ class ControllerPlugin:
         self.__schded.start()
 
     def stop(self):
-        import os
-        os._exit(0) # TODO safe exit
+        self.__msg_queue.put(None)
+        self.__server.stop()
 
     def updateTopology(self, topo):
         assert isinstance(topo, Topology)

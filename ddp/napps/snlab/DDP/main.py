@@ -60,6 +60,7 @@ class Main(KytosNApp):
         If you have some cleanup procedure, insert it here.
         """
         self.plugin.stop()
+        log.info("stop")
 
     @listen_to('kytos/of_core.handshake.completed')
     def install_default_flow(self, event):
@@ -158,7 +159,7 @@ class Main(KytosNApp):
         from kytos.core.link import Link
         from napps.kytos.topology.models import Topology
         topo = event.content['topology']
-        log.info('topology update')
+        log.debug('topology update')
 
     def __setup_path_list(self, path_table):
         self.plugin.setupPathList(path_table)
@@ -170,11 +171,11 @@ class Main(KytosNApp):
         assert isinstance(msg, PacketIn)
         eth = Ethernet()
         eth.unpack(msg.data.value)
-        log.info('ethernet type=%s'%str(eth.ether_type))
+        log.debug('ethernet type=%s'%str(eth.ether_type))
         if eth.ether_type == EtherType.IPV4:
             ipv4 = IPv4()
             ipv4.unpack(eth.data.value)
-            log.info(ipv4.source)
-            log.info(ipv4.destination)
+            log.debug(ipv4.source)
+            log.debug(ipv4.destination)
 
 
