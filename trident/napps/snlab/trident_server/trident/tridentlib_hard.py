@@ -126,30 +126,37 @@ class TridentContext(object):
         print('stmbol_a' + symbol_a)
         print(str(self.sa))
 
+        sp = 'null'
         if symbol_a in self.sa and self.sa[symbol_a] == 'true':
             if symbol_h in self.sa and self.sa[symbol_h] == "www.xyz.com":
                 for p in self.p2:
                     l = len(p)
                     if p[0][0] == pkt.sip and p[l - 1][0] == pkt.dip:
-                        rules = [["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]]
-                        self.table.add_rules(rules)
-                        self.records[pkt] = rules
-                        break
+                        if sp == 'null' or len(p) < len(sp):
+                            sp = p      
+                if not sp == 'null':
+                    rules = [["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, sp], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(sp)]]
+                    self.table.add_rules(rules)
+                    self.records[pkt] = rules
             else:
                 for p in self.p1:
                     l = len(p)
                     if p[0][0] == pkt.sip and p[l - 1][0] == pkt.dip:
-                        rules = [["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]]
-                        self.table.add_rules(rules)
-                        self.records[pkt] = rules
-                        break
+                        if sp == 'null' or len(p) < len(sp):
+                            sp = p
+                if not sp == 'null':
+                    rules = [["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, sp], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(sp)]]
+                    self.table.add_rules(rules)
+                    self.records[pkt] = rules
         else:
             for p in self.p3:
                 if p[0][0] == pkt.sip:
-                    rules = [["1", pkt.sip, '*', '*', '*', '*', p], ["1", '*', pkt.sip, '*', '*', '*', self.reverse(p)]]
-                    self.table.add_rules(rules)
-                    self.records[pkt] = rules
-                    break
+                    if sp == 'null' or len(p) < len(sp):
+                        sp = p
+            if not sp == 'null':
+                rules = [["1", pkt.sip, '*', '*', '*', '*', sp], ["1", '*', pkt.sip, '*', '*', '*', self.reverse(sp)]]
+                self.table.add_rules(rules)
+                self.records[pkt] = rules
         
     def generate_table(self, topo_down = False): 
         self.table = Table(['sip', 'dip', 'sport', 'dport', 'ipproto'], ['path'])
