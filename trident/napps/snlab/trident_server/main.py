@@ -30,7 +30,7 @@ from napps.snlab.trident_server import settings
 # from gevent import spawn
 
 from napps.snlab.trident_server.trident.tridentlib import TridentServer
-from napps.snlab.trident_server.trident.runtime import Packet as TridentPacket
+from napps.snlab.trident_server.trident.objects import Packet as TridentPacket
 from napps.snlab.trident_server.settings import CONFIG_LARK, HOST_ROLE
 
 class Main(KytosNApp):
