@@ -40,9 +40,13 @@ class ExtendCLI(CLI):
 
     def do_setup(self, _line):
         for i in self.mn.hosts:
-            cmd = "%s ping 10.0.0.254 -c 1"%str(i)
+            cmd = "%s arp -s 10.0.0.254 00:11:11:11:11:11"%str(i)
             print(cmd)
-            self.onecmd(cmd)
+            self.onecmd(cmd)        
+        # for i in self.mn.hosts:
+        #     cmd = "%s ping 10.0.0.254 -c 1"%str(i)
+        #     print(cmd)
+        #     self.onecmd(cmd)
 
     def do_clear(self, _line):
         """
