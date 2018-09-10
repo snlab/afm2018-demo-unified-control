@@ -4,19 +4,20 @@ import numpy as np
 class Path(object):
     def __init__(self):
         self.nodes = []
+        self.ports ={}
 
-    def append(self, node):
+    def append(self, node, port = 'None'):
         self.nodes.append(node)
+        self.ports[node[0]] = port
     
     def pop(self):
         self.nodes.pop()
 
     def has(self, node_key):
-        for node in nodes:
-            key, value = node
-            if key == node_key:
-                return true
-        return false
+        for node in self.nodes:
+            if node[0] == node_key:
+                return True
+        return False
 
     def length(self):
         return len(self.nodes)
@@ -31,6 +32,15 @@ class Path(object):
     def get_type(self, pos):
         key, value = self.nodes[pos]
         return value['role']
+
+    def formated_path(self):
+        ret = []
+        prev = 'null'
+        for node in self.nodes:
+            if not prev == 'null':
+                ret.append([prev, self.ports[node[0]]])
+            prev = node[0]
+        return ret
 
 class Packet(object):
     def __init__(self, sip, dip, sport, dport, ipproto):

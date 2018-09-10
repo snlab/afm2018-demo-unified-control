@@ -24,28 +24,38 @@ class TridentContext(object):
     def set_runtime(self, runtime):
         self.runtime = runtime
 
-    def dfs(self, node):
-        l = self.cp.length() - 1
-        self.cp.append(node)
-
-        if l > 0:
-            if self.cp.get_type(0) == 'client':
-                if self.cp.get_type(l) == 'aaa':
-                    self.p3.append(self.cp.clone())
-
-                if self.cp.get_type(l) == 'server':
-                    self.p2.append(self.cp.clone())
-                    flag = false
-                    for i in [1, l - 1]:
-                        if self.cp.get_type(i) == 'dpi':
-                            flag = true
-                    if flag:
-                        self.p1.append(self.cp.clone())
-        
+    def dfs(self, node, port = 'None'):
         key, value = node
-        for edge in edges.values():
-            if edge['src'] == key and not self.cp.has(edge['dst']):
-                dfs(edge['dst'])
+        l = self.cp.length()
+        self.cp.append(node, port)
+
+
+        if l > 1:
+            if  'client' == self.cp.get_type(0):
+                if 'aaa' == self.cp.get_type(l):
+                    self.p3.append(self.cp.formated_path())
+
+                if 'server' == self.cp.get_type(l):
+                    self.p2.append(self.cp.formated_path())
+                    flag = False
+                    for i in [1, l - 1]:
+                        if 'dpi' == self.cp.get_type(i):
+                            flag = True
+                    if flag:
+                        self.p1.append(self.cp.formated_path())
+
+        for edge in self.edges.values():
+            src = edge['src']
+            if len(src) > 23:
+                src = src[0:23]
+
+            dst = edge['dst']
+            if len(dst) > 23:
+                dst = dst[0:23]
+
+            if src == key and not self.cp.has(dst):
+                t = dst, self.nodes[dst]
+                self.dfs(t, edge['src'][24:])
 
         self.cp.pop()
 
@@ -57,8 +67,9 @@ class TridentContext(object):
         self.p1 = []
         self.p2 = []
         self.p3 = []
+
         for node in self.nodes.items():
-            dfs(node)
+            self.dfs(node)
 
     def set_sa(self, name, pkt, value):
         if 'http_uri' == name:
@@ -86,20 +97,17 @@ class TridentContext(object):
                     l = p.length() - 1
                     if p.get(0) == pkt.sport and p.get(l) == pkt.dip:
                         r = p
-                self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, r],
-                                      ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, r.reverse()])
-             else:
+                self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, r], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, r.reverse()]])
+            else:
                 for p in self.p1:
                     l = p.length() - 1
                     if p.get(0) == pkt.sport and p.get(l) == pkt.dip:
                         r = p
-                self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, r],
-                                      ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, r.reverse()])
+                self.table.add_rules([["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, r], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, r.reverse()]])
         else:
             for p in self.p3:
                 r = p
-            self.table.add_rules([["1", pkt.sip, '*', '*', '*', '*', r],
-                                  ["1", '*', pkt.sip, '*', '*', '*', r.reverse()])
+            self.table.add_rules([["1", pkt.sip, '*', '*', '*', '*', r], ["1", '*', pkt.sip, '*', '*', '*', r.reverse()]])
         
     def generate_table(self):
         self.ctx.packets.append(pkt)
