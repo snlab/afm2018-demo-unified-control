@@ -100,6 +100,9 @@ class TridentContext(object):
         self.sa[symbol] = value
 
     def set_pkt(self, pkt):
+        for t in self.packets:
+            if str(t) == str(pkt):
+                return
         self.packets.append(pkt)
 
     '''
