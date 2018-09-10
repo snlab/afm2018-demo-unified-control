@@ -105,6 +105,13 @@ class Main(KytosNApp):
         trident = self.trident
         pkt = request.args.get('flow')
         sa_name = request.args.get('key')
+        if sa_name == 'auth':
+            sa_name = 'authenticated'
+            sip = pkt[1:-1]
+            pkt = TridentPacket(sip, '*', 0, 0, '*')
+        if sa_name == 'http_host':
+            sa_name = 'http_uri'
+            
         value = request.args.get('value')
         if not self.debug:
             trident.update_sa(sa_name, pkt, value)
