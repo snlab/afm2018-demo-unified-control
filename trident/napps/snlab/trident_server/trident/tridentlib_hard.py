@@ -127,7 +127,7 @@ class TridentContext(object):
         print(str(self.sa))
 
         sp = 'null'
-        if symbol_a in self.sa and self.sa[symbol_a] == 'true':
+        if symbol_a in self.sa and self.sa[symbol_a] == 'Accept':
             if symbol_h in self.sa and self.sa[symbol_h] == "www.xyz.com":
                 for p in self.p2:
                     l = len(p)
