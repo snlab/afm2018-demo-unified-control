@@ -1,4 +1,5 @@
 from napps.snlab.trident_server.trident.tridentlib_hard import TridentContext
+from napps.snlab.trident_server.trident.convertformat import convert_format
 from kytos.core import KytosEvent
 
 class TridentServer(object):
@@ -9,6 +10,7 @@ class TridentServer(object):
         self.ctx = TridentContext(controller)
 
     def update_table(self, table):
+        table = convert_format(table)
         event = KytosEvent(name = 'snlab/ddp/setup', content = table)
         self.ctx.controller.buffers.app.put(event)
 
