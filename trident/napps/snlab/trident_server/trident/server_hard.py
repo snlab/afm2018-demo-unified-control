@@ -10,6 +10,9 @@ class TridentServer(object):
         self.ctx = TridentContext(controller)
 
     def update_table(self, table):
+        print("update\n")
+        print(table)
+
         table = convert_format(table)
         event = KytosEvent(name = 'snlab/ddp/setup', content = table)
         self.ctx.controller.buffers.app.put(event)
