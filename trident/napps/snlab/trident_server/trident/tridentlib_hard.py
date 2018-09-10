@@ -121,7 +121,7 @@ class TridentContext(object):
             if symbol_h in self.sa and self.sa[symbol_h] == "www.xyz.com":
                 for p in self.p2:
                     l = len(p)
-                    if int(p[1][1][0]) == pkt.sport and p[l - 1][0] == pkt.dip:
+                    if p[0][0] == pkt.sip and p[l - 1][0] == pkt.dip:
                         rules = [["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]]
                         self.table.add_rules(rules)
                         self.records[pkt] = rules
@@ -129,7 +129,7 @@ class TridentContext(object):
             else:
                 for p in self.p1:
                     l = len(p)
-                    if int(p[1][1][0]) == pkt.sport and p[l - 1][0] == pkt.dip:
+                    if p[0][0] == pkt.sip and p[l - 1][0] == pkt.dip:
                         rules = [["2", pkt.sip, pkt.dip, pkt.sport, pkt.dport, pkt.ipproto, p], ["2", pkt.dip, pkt.sip, pkt.dport, pkt.sport, pkt.ipproto, self.reverse(p)]]
                         self.table.add_rules(rules)
                         self.records[pkt] = rules
