@@ -318,23 +318,6 @@ class Test(BuiltinFunction):
     def typecheck(self, args):
         return 'string'
 
-class Phi(BuiltinFunction):
-    def __init__(self, branch_type):
-        BuiltinFunction.__init__(self, 'branch')
-        self.branch_type = branch_type
-
-    def typecheck(self, args):
-        return args[0]
-
-class VirtualSink(BuiltinFunction):
-    def __init__(self):
-        BuiltinFunction.__init__(self, 'virtual-sink')
-
-    def typecheck(self, args):
-        if quick_check(args, len(args), ['binding'] * len(args)):
-            return 'binding'
-        return None
-
 BUILTIN_FUNCTABLE = {
     'equal': [Equal()],
     'not_equal': [NotEqual()],
@@ -363,7 +346,6 @@ BUILTIN_FUNCTABLE = {
     'Shortest': [Shortest()],
     'bind': [Bind()],
     'drop': [Drop()],
-    'virtualsink': [VirtualSink()],
     'select': [Select()]
 }
 
@@ -372,3 +354,6 @@ def lookup_builtin_func(fname, argtypes):
         if f.typecheck(argtypes) is not None:
             return f
     terror("No valid function %s(%s)" % (fname, ','.join(argtypes)))
+
+def execute_builtin_func(fname, args):
+    return BUILTIN_FUNCTABLE[fname].execute(args)

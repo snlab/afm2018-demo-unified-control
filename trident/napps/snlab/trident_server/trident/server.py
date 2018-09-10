@@ -1,16 +1,10 @@
-
 from flask import Flask, request, g
 from gevent.pywsgi import WSGIServer
-
 from napps.snlab.trident_server.trident.tridentlib import TridentServer
 
 app = Flask("trident")
-
 trident = TridentServer()
-
-
 from napps.snlab.trident_server.settings import CONFIG_LARK as lark
-# lark = "example.lark"
 
 @app.route('/submit', methods=['POST'])
 def submit_program():

@@ -1,9 +1,6 @@
-
 import networkx as nx
-from kytos.core import KytosEvent
-
-from napps.snlab.trident_server.trident.runtime import LvSystem
-
+# FIXME add it back before push
+#from kytos.core import KytosEvent
 
 class TridentContext(object):
     """
@@ -13,42 +10,19 @@ class TridentContext(object):
     """
     def __init__(self, controller):
         self.parser = None
-        self.interpreter = None
+        self.compiler = None
         self.runtime = None
         self.controller = controller
 
     def set_parser(self, parser):
         self.parser = parser
 
-    def set_interpreter(self, interpreter):
-        self.interpreter = interpreter
+    def set_compiler(self, compiler):
+        self.compiler = compiler
 
     def set_runtime(self, runtime):
         self.runtime = runtime
 
-    '''
-    The format of topology:
-
-    ctx.nodes = { "s1": { "role": "sw"  }, "s2": { "role": "sw"  }, "h1": {
-    "role": "client"  }, "h2": { "role": "server"  }, "dpi1": { "role": "dpi"
-    }, "dpi2": { "role": "dpi"  }  }
-
-    ctx.edges = { "e1": { "src": "s1:1", "dst": "h1:1", "capacity": 100  },
-    "e2": { "src": "h1:1", "dst": "s1:1", "capacity": 100  }, "e3": { "src":
-        "s2:1", "dst": "h2:1", "capacity": 10  }, "e4": { "src": "h2:1", "dst":
-            "s2:1", "capacity": 10 }, "e5": { "src": "s1:2", "dst": "h2:2",
-            "capacity": 100  }, "e6": { "src": "h2:1", "dst": "s1:2",
-            "capacity": 100  }, "e7": { "src": "s2:2", "dst": "h1:2",
-            "capacity": 10  }, "e8": { "src": "h1:2", "dst": "s2:2",
-            "capacity": 10  }, "e9": { "src": "s1:3", "dst": "s2:3",
-            "capacity": 10  }, "e10": { "src": "s2:3", "dst": "s1:3",
-            "capacity": 10  }, "e11": { "src": "s1:4", "dst": "dpi1:1",
-            "capacity": 10  }, "e12": { "src": "dpi1:1", "dst": "s1:4",
-            "capacity": 10  }, "e13": { "src": "s2:4", "dst": "dpi2:1",
-            "capacity": 10  }, "e14": { "src": "dpi2:1", "dst": "s2:4",
-            "capacity": 10  }  }
-    except: 1. without capacity; 2. s1 -> 00:00:00:00:00:00:00:01
-    '''
     def set_topology(self, nodes, edges):
         self.nodes = nodes
         self.edges = edges
@@ -60,16 +34,17 @@ class TridentContext(object):
     match = {"sip": "192.168.1.1", "dip": ..., "sport": 20} same with Packet
     path = [("00:00:00:00:00:00:00:01", 1), (...)]
     '''
-    def update_table(self, table):
-        event = KytosEvent(name = 'snlab/ddp/setup', content = table)
-        self.controller.buffers.app.put(event)
+    #FIXME add it back before push
+    #def update_table(self, table):
+        #event = KytosEvent(name = 'snlab/ddp/setup', content = table)
+        #self.controller.buffers.app.put(event)
 
     def parse(self, program):
         self.ast = self.parser.parse(program)
 
-    def interpret(self):
-        self.vgraph, self.vnodes = self.interpreter.interpret(self.ast)
-        return self.vgraph, self.vnodes
+    def compile(self):
+        self.tables = self.compiler.do_compile(self.ast)
+        return self.tables
 
     def launch(self):
         self.runtime.launch(self.vgraph, self.vnodes)
@@ -92,18 +67,17 @@ class TridentServer(object):
     def submit(self, lark, program, debug=False):
         self.program = program
 
-        from parser import LarkParser
-        from interpreter import LarkInterpreter
-
+        from napps.snlab.trident_server.trident.parser import LarkParser
         self.ctx.set_parser(LarkParser(lark))
-        self.ctx.set_interpreter(LarkInterpreter)
-        self.ctx.set_runtime(LvSystem)
-
         self.ctx.parse(program)
 
+        from napps.snlab.trident_server.trident.compiler import tc
+        self.ctx.set_compiler(tc)
         if debug:
             print(self.ctx.ast.pretty())
-        self.ctx.interpret()
+        self.ctx.compile()
+
+        # self.ctx.set_runtime(LvSystem)
 
     def new_pkt(self, pkt):
         self.ctx.runtime.new_pkt(pkt)
@@ -120,18 +94,3 @@ class TridentServer(object):
         # TODO Hardcode stub 3/3 Topology change: fake table with update_table()
         self.set_topology(nodes, edges)
         self.ctx.runtime.update_topology()
-
-def test_lark(larkfile, progfile):
-    trident = TridentServer()
-
-    with open(progfile) as f:
-        program = f.read()
-    trident.submit(larkfile, program, debug=True)
-    for v in trident.ctx.vnodes:
-        print(v['var'])
-
-
-if __name__ == '__main__':
-    import sys
-    lark, prog = sys.argv[1:]
-    test_lark(lark, prog)
