@@ -60,6 +60,8 @@ class Main(KytosNApp):
 
         self.interface2DirLink = {}
 
+        self.debug = False
+
         log.info('Main setup')
 
     def execute(self):
@@ -87,7 +89,8 @@ class Main(KytosNApp):
         trident = self.trident
         program = request.data
         try:
-            trident.submit(CONFIG_LARK, program)
+            if not self.debug:
+                trident.submit(CONFIG_LARK, program)
             return 'ok'
         except Exception as e:
             raise e
@@ -103,7 +106,8 @@ class Main(KytosNApp):
         pkt = request.args.get('flow')
         sa_name = request.args.get('key')
         value = request.args.get('value')
-        trident.update_sa(sa_name, pkt, value)
+        if not self.debug:
+            trident.update_sa(sa_name, pkt, value)
         print(str(sa_name) + " " + str(pkt) + " " + str(value))
         return 'ok'
 
@@ -140,7 +144,8 @@ class Main(KytosNApp):
                 #TODO: need to handle host mobility
                 print(self.nodes)
                 print(self.edges)
-                self.trident.set_topology(self.nodes, self.edges)
+                if not self.debug:
+                    self.trident.set_topology(self.nodes, self.edges)
             else:
                 sip = ipv4.source
                 dip = ipv4.destination
@@ -168,7 +173,8 @@ class Main(KytosNApp):
                     
                 print("sip:" + str(sip) + "dip:" + str(dip) + str(ipproto) + "sport" + str(sport) + "dport" + str(dport))
                 pkt = TridentPacket(sip, dip, sport, dport, ipproto)
-                self.trident.new_pkt(pkt)
+                if not self.debug:
+                    self.trident.new_pkt(pkt)
 
 
 
@@ -208,7 +214,8 @@ class Main(KytosNApp):
         if need_update:
             print("new link")
             print(self.edges)
-            self.trident.set_topology(self.nodes, self.edges)
+            if not self.debug:
+                self.trident.set_topology(self.nodes, self.edges)
 
 
 
@@ -231,7 +238,8 @@ class Main(KytosNApp):
         print("link down")
         print(self.edges)
 
-        self.trident.set_topology(self.nodes, self.edges)
+        if not self.debug:
+            self.trident.set_topology(self.nodes, self.edges)
 
     #useless
     #@listen_to('.*.switch.port.deleted')
@@ -247,7 +255,8 @@ class Main(KytosNApp):
         print('port deleted')
         print(self.edges)
 
-        self.trident.set_topology(self.nodes, self.edges)
+        if not self.debug:
+            self.trident.set_topology(self.nodes, self.edges)
 
     @listen_to('kytos/topology.updated')
     def handle_topology_update(self, event):
@@ -258,8 +267,9 @@ class Main(KytosNApp):
 
             print("topology update")
             print(self.edges)
-
-            self.trident.set_topology(self.nodes, self.edges)
+            
+            if not self.debug:
+                self.trident.set_topology(self.nodes, self.edges)
 
             self.trident.test()
 
