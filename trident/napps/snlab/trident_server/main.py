@@ -124,7 +124,9 @@ class Main(KytosNApp):
 
         switch = event.source.switch
         in_port = msg.in_port
-
+	
+        if eth.ether_type != 35020:
+            log.info('ethernet type=%s'%str(eth.ether_type))
         if eth.ether_type == EtherType.IPV4:
             ipv4 = IPv4()
             ipv4.unpack(eth.data.value)
@@ -174,6 +176,7 @@ class Main(KytosNApp):
                 print("sip:" + str(sip) + "dip:" + str(dip) + str(ipproto) + "sport" + str(sport) + "dport" + str(dport))
                 pkt = TridentPacket(sip, dip, sport, dport, ipproto)
                 if not self.debug:
+                    log.info('start to call trident new_pkt')
                     self.trident.new_pkt(pkt)
 
 
@@ -266,6 +269,7 @@ class Main(KytosNApp):
             self.set_edges(topology)
 
             print("topology update")
+            print(self.nodes)
             print(self.edges)
             
             if not self.debug:

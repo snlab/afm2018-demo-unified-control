@@ -18,7 +18,9 @@ class TridentServer(object):
         self.ctx.controller.buffers.app.put(event)
 
     def new_pkt(self, pkt):
+        print('server_hard: new_pkt')
         self.ctx.set_pkt(pkt)
+        print('server_hard: after ser_pkt')
         self.update_table(self.ctx.generate_table())
 
     def update_sa(self, sa_name, pkt, value):

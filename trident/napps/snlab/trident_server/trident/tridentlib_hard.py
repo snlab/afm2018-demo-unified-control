@@ -75,7 +75,7 @@ class TridentContext(object):
                 self.dfs(t, edge['dst'][24:])
             self.cp.pop()
 
-    def set_topology(self, nodes, edges, DEBUG = False):
+    def set_topology(self, nodes, edges, DEBUG = True):
         self.nodes = nodes
         self.edges = edges
         
@@ -88,7 +88,7 @@ class TridentContext(object):
             self.dfs(node)
 
         if DEBUG:
-            for p in self.p2:
+            for p in self.p3:
                 print(p)
                 print("\n")
 
@@ -110,6 +110,7 @@ class TridentContext(object):
     path = [("00:00:00:00:00:00:00:01", 1), (...)]
     '''
     def generate_rule(self, pkt, topo_down = False):
+        print('generate_rule')
         if topo_down and pkt in self.records.keys() and self.alive(self.records[pkt]):
             self.table.add_rules(self.records[pkt])
             return
@@ -117,6 +118,11 @@ class TridentContext(object):
         r = 'null'
         symbol_h = 'http_uri' + str(pkt)
         symbol_a = 'authenticated' + pkt.sip
+        
+        print('symbol_h' + symbol_h)
+        print('stmbol_a' + symbol_a)
+        print(str(self.sa))
+
         if symbol_a in self.sa and self.sa[symbol_a] == 'true':
             if symbol_h in self.sa and self.sa[symbol_h] == "www.xyz.com":
                 for p in self.p2:
@@ -136,7 +142,7 @@ class TridentContext(object):
                         break
         else:
             for p in self.p3:
-                if int(p[1][1][0]) == pkt.sport:
+                if p[0][0] == pkt.sip:
                     rules = [["1", pkt.sip, '*', '*', '*', '*', p], ["1", '*', pkt.sip, '*', '*', '*', self.reverse(p)]]
                     self.table.add_rules(rules)
                     self.records[pkt] = rules
@@ -144,6 +150,8 @@ class TridentContext(object):
         
     def generate_table(self, topo_down = False): 
         self.table = Table(['sip', 'dip', 'sport', 'dport', 'ipproto'], ['path'])
+        print('tlib: generate_table')
+        print(self.packets)
         for pkt in self.packets:
             self.generate_rule(pkt, topo_down)
         return self.table
