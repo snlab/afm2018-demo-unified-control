@@ -29,7 +29,7 @@ from napps.snlab.trident_server import settings
 # from napps.snlab.trident_server.trident import server as S
 # from gevent import spawn
 
-from napps.snlab.trident_server.trident.tridentlib import TridentServer
+from napps.snlab.trident_server.trident.server_hard import TridentServer
 from napps.snlab.trident_server.trident.objects import Packet as TridentPacket
 from napps.snlab.trident_server.settings import CONFIG_LARK, HOST_ROLE
 
@@ -95,7 +95,7 @@ class Main(KytosNApp):
     @rest('v1/ast')
     def read_program(self):
         trident = self.trident
-        return trident.ctx.ast.pretty()   
+        return trident.ctx.ast.pretty()
 
     @rest('v1/tridentkv')
     def update_kv(self):
@@ -139,7 +139,7 @@ class Main(KytosNApp):
                 #TODO: need to handle host mobility
                 print(self.nodes)
                 print(self.edges)
-                self.trident.ctx.set_topology(self.nodes, self.edges)
+                self.trident.set_topology(self.nodes, self.edges)
             else:
                 sip = ipv4.source
                 dip = ipv4.destination
@@ -207,7 +207,7 @@ class Main(KytosNApp):
         if need_update:
             print("new link")
             print(self.edges)
-            self.trident.ctx.set_topology(self.nodes, self.edges)
+            self.trident.set_topology(self.nodes, self.edges)
 
 
 
@@ -230,7 +230,7 @@ class Main(KytosNApp):
         print("link down")
         print(self.edges)
 
-        self.trident.ctx.set_topology(self.nodes, self.edges)
+        self.trident.set_topology(self.nodes, self.edges)
 
     #useless
     #@listen_to('.*.switch.port.deleted')
@@ -246,7 +246,7 @@ class Main(KytosNApp):
         print('port deleted')
         print(self.edges)
 
-        self.trident.ctx.set_topology(self.nodes, self.edges)
+        self.trident.set_topology(self.nodes, self.edges)
 
     @listen_to('kytos/topology.updated')
     def handle_topology_update(self, event):
@@ -258,9 +258,9 @@ class Main(KytosNApp):
             print("topology update")
             print(self.edges)
 
-            self.trident.ctx.set_topology(self.nodes, self.edges)
+            self.trident.set_topology(self.nodes, self.edges)
 
-            self.trident.ctx.test()
+            self.trident.test()
 
             self.topology_not_set = False
 
