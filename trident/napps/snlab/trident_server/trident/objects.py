@@ -1,14 +1,16 @@
 import uuid
 import numpy as np
 
-class Path(object):
+class Path(object): # FIXME: 1. how to handle reverse path? 2. how to handle sport? 3. how to handle multi-cast?
     def __init__(self):
         self.nodes = []
         self.ports ={}
+        self.rports = {}
 
-    def append(self, node, port = 'None'):
+    def append(self, node, snode = '', port = '', rport = ''):
         self.nodes.append(node)
-        self.ports[node[0]] = port
+        if not snode == '':
+            self.ports[snode[0]] = port
     
     def pop(self):
         self.nodes.pop()
@@ -22,7 +24,7 @@ class Path(object):
     def length(self):
         return len(self.nodes)
 
-    def reverse(self):
+    def reverse(self): #FIXME
         p = Path()
         for node in self.nodes:
             p.append(node)
@@ -35,11 +37,12 @@ class Path(object):
 
     def formated_path(self):
         ret = []
-        prev = 'null'
         for node in self.nodes:
-            if not prev == 'null':
-                ret.append([prev, self.ports[node[0]]])
-            prev = node[0]
+            if node[0] in self.ports.keys():
+                port = self.ports[node[0]]
+            else:
+                port = ''
+            ret.append([node[0], port])
         return ret
 
 class Packet(object):
@@ -94,7 +97,7 @@ class Table(object):
         for rule in rules:
             if len(rule) != 1 + len(self.key) + len(self.act):
                 print("Table: Rule has the wrong number of attr: %s" % rule)
-                print("Attr list is: %s -> %s" % self.key, self.act)
+                print("Attr list is: %s -> %s" % (self.key, self.act))
     
         if len(self.rules) > 0:
             self.rules = np.concatenate((self.rules, np.array(rules, dtype=object)), axis=0)
