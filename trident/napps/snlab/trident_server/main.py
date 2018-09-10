@@ -104,6 +104,7 @@ class Main(KytosNApp):
         sa_name = request.args.get('key')
         value = request.args.get('value')
         trident.update_sa(sa_name, pkt, value)
+        print(str(sa_name) + " " + str(pkt) + " " + str(value))
         return 'ok'
 
 
