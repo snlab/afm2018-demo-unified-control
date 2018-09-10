@@ -88,7 +88,7 @@ class TridentContext(object):
             self.dfs(node)
 
         if DEBUG:
-            for p in self.p3:
+            for p in self.p1:
                 print(p)
                 print("\n")
 
