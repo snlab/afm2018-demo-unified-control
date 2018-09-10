@@ -1,35 +1,4 @@
-from napps.snlab.trident_server.trident.objects import Packet, Table
-
-class Path(object):
-    def __init__(self):
-        self.nodes = []
-
-    def append(self, node):
-        self.nodes.append(node)
-    
-    def pop(self):
-        self.nodes.pop()
-
-    def has(self, node_key):
-        for node in nodes:
-            key, value = node
-            if key == node_key:
-                return true
-        return false
-
-    def length(self):
-        return len(self.nodes)
-
-    def reverse(self):
-        p = Path()
-        for node in self.nodes:
-            p.append(node)
-        p.nodes.reverse()
-        return p
-
-    def get_type(self, pos):
-        key, value = self.nodes[pos]
-        return value['role']
+from napps.snlab.trident_server.trident.objects import Packet, Table, Path
 
 class TridentContext(object):
     """
@@ -112,7 +81,7 @@ class TridentContext(object):
         symbol_h = 'http_uri' + str(pkt)
         symbol_a = 'authenticated' + pkt.sip
         if symbol_a in self.sa and self.sa[symbol_a] == 'true':
-            if symbol_h in self.sa and self.sa[symbol_h] == 'www.xyz.com':
+            if symbol_h in self.sa and self.sa[symbol_h] == "www.xyz.com":
                 for p in self.p2:
                     l = p.length() - 1
                     if p.get(0) == pkt.sport and p.get(l) == pkt.dip:
@@ -135,29 +104,7 @@ class TridentContext(object):
     def generate_table(self):
         self.ctx.packets.append(pkt)
 
-        self.table = Table(["sip", "dip", "sport", "dport", "ipproto"])
+        self.table = Table(['sip', 'dip', 'sport', 'dport', 'ipproto'], ['Path'])
         for pkt in self.ctx.packets:
             genearate_rule(pkt)
         return self.table
-
-class TridentServer(object):
-    def __init__(self):
-        pass
-
-    def set_ctx_controller(self, controller):
-        self.ctx = TridentContext(controller)
-
-    def new_pkt(self, pkt):
-        self.ctx.set_pkt(pkt)
-        return self.ctx.generate_table()
-
-    def update_sa(self, sa_name, pkt, value):
-        self.ctx.set_sa(sa_name, pkt, value)
-        return self.ctx.generate_table()
-
-    def set_topology(self, nodes, edges):
-        self.ctx.set_topology(nodes, edges)
-
-    def update_topology(self, nodes, edges):
-        self.set_topology(nodes, edges)
-        return self.ctx.generate_table()

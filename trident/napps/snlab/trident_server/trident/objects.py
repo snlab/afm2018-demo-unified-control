@@ -1,6 +1,37 @@
 import uuid
 import numpy as np
 
+class Path(object):
+    def __init__(self):
+        self.nodes = []
+
+    def append(self, node):
+        self.nodes.append(node)
+    
+    def pop(self):
+        self.nodes.pop()
+
+    def has(self, node_key):
+        for node in nodes:
+            key, value = node
+            if key == node_key:
+                return true
+        return false
+
+    def length(self):
+        return len(self.nodes)
+
+    def reverse(self):
+        p = Path()
+        for node in self.nodes:
+            p.append(node)
+        p.nodes.reverse()
+        return p
+
+    def get_type(self, pos):
+        key, value = self.nodes[pos]
+        return value['role']
+
 class Packet(object):
     def __init__(self, sip, dip, sport, dport, ipproto):
         self.sip = sip
