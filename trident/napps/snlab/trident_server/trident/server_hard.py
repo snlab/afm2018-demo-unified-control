@@ -21,7 +21,7 @@ class TridentServer(object):
         self.update_table(self.ctx.generate_table())
 
     def set_topology(self, nodes, edges):
-        self.ctx.set_topology(nodes, edges)
+        self.set_topology(nodes, edges)
 
     def update_topology(self, nodes, edges):
         self.set_topology(nodes, edges)
