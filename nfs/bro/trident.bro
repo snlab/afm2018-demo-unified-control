@@ -24,7 +24,11 @@ function five_tuple(c: connection): string {
 }
 
 function report(c: connection, key: string, value: string): int {
-    local url = fmt(base_url, controller_url, five_tuple(c), key, value);
+    local send = five_tuple(c);
+    local url = fmt(base_url, controller_url, send, key, value);
+    print send;
+    print key;
+    print value;
     when (local resp = ActiveHTTP::request([$url=url])) {
     }
     return 0;
