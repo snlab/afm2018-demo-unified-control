@@ -24,6 +24,10 @@ sudo python ./topogen.py config/demo5.yaml --ddp
 cd /home/afm18/afm-demo/freeradius-server/raddb
 sudo radiusd -X -d .
 
+3x. start adhoc aaa server
+/home/afm18/afm-demo/afm2018-demo-unified-control/mininet-scripts
+./radius-server.sh
+
 4. start bro server
 cd /home/afm18/afm-demo/afm2018-demo-unified-control/nfs/bro
 sudo /usr/local/bro/bin/bro -i vnf-eth1 http_url_mod.bro -C
@@ -31,6 +35,9 @@ sudo /usr/local/bro/bin/bro -i vnf-eth1 http_url_mod.bro -C
 5. h1 requests authentication from the freeradius server
 // usename: steve, password: testing
 mininet>h1 radtest -P udp steve testing 10.0.0.3:9000 0 testing123
+
+5x. h1 ... from adhoc aaa server
+mininet>h1 ./radius-client.sh user rightpassword
 
 6. check responce
 //Note: the path has been deleted since the pkt has gone to another branch.

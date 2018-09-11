@@ -13,7 +13,7 @@ P3 = C :-: AAA
 
 program {
   iff (pkt.authenticated) {
-    iff (pkt.http_uri == 'www.xyz.com') {
+    iff (pkt.http_uri.endswith('.data')) {
       r = any(P2 where (start==pkt.inport && end == pkt.dst)) 
       bind(pkt, r)
       bind(~pkt, ~r)

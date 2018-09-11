@@ -128,7 +128,7 @@ class TridentContext(object):
 
         sp = 'null'
         if symbol_a in self.sa and self.sa[symbol_a] == 'Accept':
-            if symbol_h in self.sa and self.sa[symbol_h] == "www.xyz.com":
+            if symbol_h in self.sa and self.sa[symbol_h].endswith('.data'):
                 for p in self.p2:
                     l = len(p)
                     if p[0][0] == pkt.sip and p[l - 1][0] == pkt.dip:
