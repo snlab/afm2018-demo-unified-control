@@ -1,3 +1,18 @@
+Prework:
+
+1. git pull
+cd /home/afm18/afm-demo/afm2018-demo-unified-control
+git pull 
+
+2. set up freeradius
+cp -r /home/afm18/afm-demo/afm2018-demo-unified-control/nfs/radius/raddb /home/afm18/afm-demo/freeradius-server/raddb
+
+Workflow:
+
+1. start kytos controller
+
+
+
 bro:
 sudo /usr/local/bro/bin/bro -i vnf-eth0 http_url_mod.bro -C
 
@@ -14,3 +29,7 @@ radtest steve testing localhost:9000 0 testing123
 mininet:
 sudo python topogen.py config/demo5.yaml
 setup
+
+!!!
+/home/afm18/afm-demo/kytosvenv/var/lib/kytos/napps/kytos/topology/main.py
+name 'link' is not defined

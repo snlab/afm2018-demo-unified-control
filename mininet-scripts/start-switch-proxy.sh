@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Python3.6 environment
-source ~/App/venv3.6/bin/activate
+source ~/afm-demo/kytosvenv/bin/activate
 
 # add the DDP module to PYTHONPATH or install DDP module
-export PYTHONPATH="/home/yutao/Desktop/afm2018-demo-unified-control/ddp/lib"
+export PYTHONPATH="/home/afm18/afm-demo/afm2018-demo-unified-control/ddp/lib"
 
 mkdir -p log
 
