@@ -19,6 +19,7 @@ MIME_MAPPING = {
             "zip": "application/x-zip-compressed",
             "iso": "application/octet-stream",
             "txt": "text/plain",
+            "data": "text/plain",
             "html": "text/html"
         }
 

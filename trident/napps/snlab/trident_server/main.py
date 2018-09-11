@@ -98,7 +98,7 @@ class Main(KytosNApp):
         program = request.data
         try:
             if not self.debug:
-                trident.submit(CONFIG_LARK, program)
+                pass #trident.submit(CONFIG_LARK, program)
             return 'ok'
         except Exception as e:
             raise e
