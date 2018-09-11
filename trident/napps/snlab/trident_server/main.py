@@ -58,8 +58,8 @@ class Main(KytosNApp):
         self.trident = TridentServer()
         self.trident.set_ctx_controller(self.controller)
         sa_name ='authenticated'
-        # pkt = TridentPacket('10.0.0.2', '*', 0, 0, '*')
-        # self.trident.update_sa(sa_name, pkt, 'Accept')
+        #pkt = TridentPacket('10.0.0.2', '*', 0, 0, '*')
+        #self.trident.update_sa(sa_name, pkt, 'Accept')
         self.interface2DirLink = {}
 
         self.debug = False
