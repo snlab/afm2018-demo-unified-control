@@ -5,6 +5,8 @@ trident server
 from flask import jsonify, request
 from struct import *
 
+import threading
+
 from kytos.core import KytosNApp, log, rest
 from kytos.core.helpers import listen_to
 
@@ -52,17 +54,21 @@ class Main(KytosNApp):
 
         So, if you have any setup routine, insert it here.
         """
-        self.nodes = {}
-        self.edges = {}
-        self.topology_not_set = True
+        # self.nodes = dict(settings.HOST_NODE)
+        # self.edges = dict(settings.HOST_EDGE)
+        # self.topology_not_set = True
         self.trident = TridentServer()
         self.trident.set_ctx_controller(self.controller)
         sa_name ='authenticated'
         # pkt = TridentPacket('10.0.0.2', '*', 0, 0, '*')
         # self.trident.update_sa(sa_name, pkt, 'Accept')
-        self.interface2DirLink = {}
+        # self.interface2DirLink = {}
 
         self.debug = False
+        # self._system_ready = False
+        self.lock = threading.Lock()
+        self.sw_nodes = {}
+        self.sw_links = {}  # {(swid, port):(swid, port)}
 
         log.info('Main setup')
 
@@ -131,6 +137,8 @@ class Main(KytosNApp):
     ##############Packet In###############
     @listen_to('kytos/of_core.v0x0[14].messages.in.ofpt_packet_in')
     def packet_in(self, event):
+        self.lock.acquire()
+
         from pyof.v0x04.asynchronous.packet_in import PacketIn
         msg = event.content['message']
         assert isinstance(msg, PacketIn)
@@ -176,6 +184,7 @@ class Main(KytosNApp):
                 #     return
                 allow_pair =[("10.0.0.2","10.0.0.3"),("10.0.0.2","10.0.0.1")]
                 if (sip,dip) not in allow_pair:
+                    self.lock.release()
                     return
                 if ipproto == 6:
                     ipproto = "tcp"
@@ -193,6 +202,7 @@ class Main(KytosNApp):
                     sport = udph[0]
                     dport = udph[1]
                 else:
+                    self.lock.release()
                     return
                     
                 log.info("sip:" + str(sip) + "dip:" + str(dip) + str(ipproto) + "sport" + str(sport) + "dport" + str(dport))
@@ -200,7 +210,106 @@ class Main(KytosNApp):
                 if not self.debug:
                     log.info('start to call trident new_pkt')
                     self.trident.new_pkt(pkt)
+        self.lock.release()
 
+
+    @listen_to('.*.switch.interface.down')
+    def handle_interface_link_down(self, event):
+        self.lock.acquire()
+
+        log.debug("-----------LINK DOWN----------")
+        interface = event.content['interface']
+        log.debug("interface link down: " + str(interface.switch.dpid) + ":" +
+                     str(interface.port_number))
+        i = (interface.switch.dpid, interface.port_number)
+        if i in self.sw_links:
+            p1 = i
+            p2 = self.sw_links[p1]
+            log.info("handle_interface_link_down %s <--> %s"%(str(p1),str(p2)))
+            self.sw_links.pop(p1)
+            self.sw_links.pop(p2)
+            self._reexec()
+
+
+        self.lock.release()
+
+    @listen_to('.*.interface.is.nni')
+    def handle_new_link(self, event):
+        self.lock.acquire()
+
+        log.debug("--------handle_new_link-------------")
+        interface_a = event.content['interface_a']
+        a = (interface_a.switch.dpid, interface_a.port_number)
+        interface_b = event.content['interface_b']
+        b = (interface_b.switch.dpid, interface_b.port_number)
+        need_update = False
+        if a not in self.sw_links:
+            assert b not in self.sw_links, "b in sw_links"
+            log.info("handle_new_link %s <->%s"%(str(a),str(b)))
+            self.sw_links[a]=b
+            self.sw_links[b]=a
+            self._reexec()
+        if b not in self.sw_links:
+            assert a not in self.sw_links, "a in sw_links"
+
+        self.lock.release()
+
+    @listen_to('.*.switch.(new|reconnected)')
+    def handle_new_switch(self, event):
+        self.lock.acquire()
+
+        switch = event.content['switch']
+        log.debug('Switch %s added to the Topology.', switch.id)
+        i = str(switch.id)
+        if i not in self.sw_nodes:
+            self.sw_nodes[i]= {'role': 'sw'}
+
+        self.lock.release()
+
+    @listen_to('.*.connection.lost')
+    def handle_connection_lost(self, event):
+        self.lock.acquire()
+
+        switch = event.content['source'].switch
+        if switch:
+            log.debug('Switch %s removed from the Topology.', switch.id)
+            i = str(switch.id)
+            if i not in self.sw_nodes:
+                log.error("i not in sw_nodes")
+            else:
+                self.sw_nodes.pop(i)
+                changed = False
+                for f,t in list(self.sw_links.items()):
+                    if f[0]==i:
+                        self.sw_links.pop(f)
+                        changed=True
+                    if t[0]==i:
+                        self.sw_links.pop(f)
+                        changed =True
+                if changed:
+                    self._reexec()
+
+        self.lock.release()
+
+    def __linkpairtostr(self, a):
+        return str(a[0])+":"+str(a[1])
+
+    def _reexec(self):
+        log.info("reexec")
+        for sw,port  in settings.HOST_ENDPOINT.values():
+            if sw not in self.sw_nodes:
+                log.warn("reexec sw not in self.sw_nodes")
+                return
+
+        nodes = dict(self.sw_nodes)
+        nodes.update(settings.HOST_NODE)
+        links = { }
+        for a,b in self.sw_links.items():
+            astr = self.__linkpairtostr(a)
+            bstr = self.__linkpairtostr(b)
+            links[astr+"+"+bstr]={"src":astr, "dst":bstr}
+        links.update(settings.HOST_EDGE)
+        self.trident.update_topology(nodes, links)
 
     # @listen_to('.*.reachable.mac')
     # def handle_reachable_mac(self, event):
@@ -211,34 +320,36 @@ class Main(KytosNApp):
     #     log.info('find rm port: ' + str(port.port_number))
     #     log.info('find rm reachable_mac: ' + str(reachable_mac))
 
-    @listen_to('.*.interface.is.nni')
-    def handle_new_link(self, event):
-        interface_a = event.content['interface_a']
-        interface_a_id = str(interface_a.switch.dpid) + ":" + str(interface_a.port_number)
-
-        interface_b = event.content['interface_b']
-        interface_b_id = str(interface_b.switch.dpid) + ":" + str(interface_b.port_number)
-
-        linkId_ab = interface_a_id + "+" + interface_b_id
-        linkId_ba = interface_b_id + "+" + interface_a_id
-
-        need_update = False
-
-        if linkId_ab not in self.edges:
-            self.edges[linkId_ab] = {'src': interface_a_id, 'dst': interface_b_id}
-            self.interface2DirLink[interface_a_id] = linkId_ab
-            need_update = True
-
-        if linkId_ba not in self.edges:
-            self.edges[linkId_ba] = {'src': interface_b_id, 'dst': interface_a_id}
-            self.interface2DirLink[interface_b_id] = linkId_ba
-            need_update = True
-
-        if need_update:
-            log.info("new link")
-            # print(self.edges)
-            if not self.debug:
-                self.trident.set_topology(self.nodes, self.edges)
+    # @listen_to('.*.interface.is.nni')
+    # def handle_new_link(self, event):
+    #     # if not self._system_ready:
+    #     #     return
+    #     log.info("--------handle_new_link-------------")
+    #
+    #
+    #     interface_a = event.content['interface_a']
+    #     interface_a_id = str(interface_a.switch.dpid) + ":" + str(interface_a.port_number)
+    #     interface_b = event.content['interface_b']
+    #     interface_b_id = str(interface_b.switch.dpid) + ":" + str(interface_b.port_number)
+    #     linkId_ab = interface_a_id + "+" + interface_b_id
+    #     linkId_ba = interface_b_id + "+" + interface_a_id
+    #     need_update = False
+    #
+    #     if linkId_ab not in self.edges:
+    #         self.edges[linkId_ab] = {'src': interface_a_id, 'dst': interface_b_id}
+    #         self.interface2DirLink[interface_a_id] = linkId_ab
+    #         need_update = True
+    #
+    #     if linkId_ba not in self.edges:
+    #         self.edges[linkId_ba] = {'src': interface_b_id, 'dst': interface_a_id}
+    #         self.interface2DirLink[interface_b_id] = linkId_ba
+    #         need_update = True
+    #
+    #     if need_update:
+    #         log.info("new link")
+    #         # print(self.edges)
+    #         if not self.debug:
+    #             self.trident.set_topology(self.nodes, self.edges)
 
 
 
@@ -248,81 +359,89 @@ class Main(KytosNApp):
     #    log.info('interface link up: ' + str(interface.switch.dpid) + ":" +
     #             str(interface.port_number))
 
-    @listen_to('.*.switch.interface.link_down')
-    def handle_interface_link_down(self, event):
-        interface = event.content['interface']
-        log.info("interface link down: " + str(interface.switch.dpid) + ":" +
-                 str(interface.port_number))
-        interfaceId = str(interface.switch.dpid) + ":" +str(interface.port_number)
-        linkId = self.interface2DirLink[interfaceId]
-        self.edges.pop(linkId)
-        self.interface2DirLink.pop(interfaceId)
 
-        print("link down")
-        print(self.edges)
 
-        if not self.debug:
-            self.trident.set_topology(self.nodes, self.edges)
 
-    #useless
-    #@listen_to('.*.switch.port.deleted')
-    def handle_port_deleted(self, event):
-        switch = event.content['switch']
-        port = event.content['port']
+    # @listen_to('.*.switch.interface.link_down')
+    # def handle_interface_link_down(self, event):
+    #
+    #     log.info("-----------LINK DOWN----------")
+    #
+    #     # if not self._system_ready:
+    #     #     return
+    #     interface = event.content['interface']
+    #     log.info("interface link down: " + str(interface.switch.dpid) + ":" +
+    #              str(interface.port_number))
+    #     interfaceId = str(interface.switch.dpid) + ":" +str(interface.port_number)
+    #     linkId = self.interface2DirLink[interfaceId]
+    #     self.edges.pop(linkId)
+    #     self.interface2DirLink.pop(interfaceId)
+    #
+    #     log.info("-----------LINK DOWN----------")
+    #     print(self.edges)
+    #
+    #     if not self.debug:
+    #         self.trident.set_topology(self.nodes, self.edges)
 
-        interfaceId = str(switch.dpid) + ":" + str(port)
-        linkId = self.interface2DirLink[interfaceId]
-        self.edges.pop(linkId)
-        self.interface2DirLink.pop(interfaceId)
+    # useless
+    # @listen_to('.*.switch.port.deleted')
+    # def handle_port_deleted(self, event):
+    #     switch = event.content['switch']
+    #     port = event.content['port']
+    #
+    #     interfaceId = str(switch.dpid) + ":" + str(port)
+    #     linkId = self.interface2DirLink[interfaceId]
+    #     self.edges.pop(linkId)
+    #     self.interface2DirLink.pop(interfaceId)
+    #
+    #     print('port deleted')
+    #     print(self.edges)
+    #
+    #     if not self.debug:
+    #         self.trident.set_topology(self.nodes, self.edges)
 
-        print('port deleted')
-        print(self.edges)
+    # @listen_to('kytos/topology.updated')
+    # def handle_topology_update(self, event):
+    #     topology = event.content['topology']
+    #     if self.topology_not_set:
+    #         self.set_nodes(topology)
+    #         self.set_edges(topology)
+    #
+    #         print("topology update")
+    #         print(self.nodes)
+    #         print(self.edges)
+    #
+    #         if not self.debug:
+    #             self.trident.set_topology(self.nodes, self.edges)
+    #
+    #         self.topology_not_set = False
 
-        if not self.debug:
-            self.trident.set_topology(self.nodes, self.edges)
-
-    @listen_to('kytos/topology.updated')
-    def handle_topology_update(self, event):
-        topology = event.content['topology']
-        if self.topology_not_set:
-            self.set_nodes(topology)
-            self.set_edges(topology)
-
-            print("topology update")
-            print(self.nodes)
-            print(self.edges)
-            
-            if not self.debug:
-                self.trident.set_topology(self.nodes, self.edges)
-
-            self.topology_not_set = False
-
-    def set_nodes(self, topology):
-        switches = topology.switches
-        for key in switches:
-            switch_dpid = key
-            self.nodes[str(switch_dpid)] = {"role": "sw"}
-
-    def set_edges(self, topology):
-        links = topology.links
-        for key in links:
-            link = links[key]
-            endpoint_a = link.endpoint_a
-            endpoint_a_id = str(endpoint_a.switch.dpid) + ":" + str(endpoint_a.port_number)
-
-            endpoint_b = link.endpoint_b
-            endpoint_b_id = str(endpoint_b.switch.dpid) + ":" + str(endpoint_b.port_number)
-
-            link_id_ab = str(endpoint_a_id) + "+" + str(endpoint_b_id)
-            link_id_ba = str(endpoint_b_id) + "+" + str(endpoint_a_id)
-
-            self.edges[link_id_ab] = {"src": str(endpoint_a_id), "dst":
-                                      str(endpoint_b_id)}
-            self.edges[link_id_ba] = {"src": str(endpoint_b_id), "dst":
-                                      str(endpoint_a_id)}
-
-            self.interface2DirLink[str(endpoint_a_id)] = link_id_ab
-            self.interface2DirLink[str(endpoint_b_id)] = link_id_ba
+    # def set_nodes(self, topology):
+    #     switches = topology.switches
+    #     for key in switches:
+    #         switch_dpid = key
+    #         self.nodes[str(switch_dpid)] = {"role": "sw"}
+    #
+    # def set_edges(self, topology):
+    #     links = topology.links
+    #     for key in links:
+    #         link = links[key]
+    #         endpoint_a = link.endpoint_a
+    #         endpoint_a_id = str(endpoint_a.switch.dpid) + ":" + str(endpoint_a.port_number)
+    #
+    #         endpoint_b = link.endpoint_b
+    #         endpoint_b_id = str(endpoint_b.switch.dpid) + ":" + str(endpoint_b.port_number)
+    #
+    #         link_id_ab = str(endpoint_a_id) + "+" + str(endpoint_b_id)
+    #         link_id_ba = str(endpoint_b_id) + "+" + str(endpoint_a_id)
+    #
+    #         self.edges[link_id_ab] = {"src": str(endpoint_a_id), "dst":
+    #                                   str(endpoint_b_id)}
+    #         self.edges[link_id_ba] = {"src": str(endpoint_b_id), "dst":
+    #                                   str(endpoint_a_id)}
+    #
+    #         self.interface2DirLink[str(endpoint_a_id)] = link_id_ab
+    #         self.interface2DirLink[str(endpoint_b_id)] = link_id_ba
 
 
     def shutdown(self):

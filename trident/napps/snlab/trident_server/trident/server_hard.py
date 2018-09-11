@@ -11,7 +11,7 @@ class TridentServer(object):
 
     def set_ctx_controller(self, controller):
         self.ctx = TridentContext(controller)
-        self.test()
+        # self.test()
 
     def update_table(self, table):
         logging.info("update\n")
@@ -34,12 +34,11 @@ class TridentServer(object):
         self.update_table(self.ctx.generate_table())
 
     def set_topology(self, nodes, edges):
-        pass
-        # self.ctx.set_topology(nodes, edges)
+        self.ctx.set_topology(nodes, edges)
 
-    def test(self):
-        self.ctx.set_topology(None,None)
+    # def test(self):
+    #     self.ctx.set_topology(None,None)
 
     def update_topology(self, nodes, edges):
         self.set_topology(nodes, edges)
-        self.update_table(self.ctx.generate_table(), True)
+        self.update_table(self.ctx.generate_table())
