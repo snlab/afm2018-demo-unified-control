@@ -2,8 +2,8 @@
 
 ### How to run
 
-1. Download the [ui.zip](https://github.com/snlab/afm2018-demo-unified-control/raw/master/README.md) and unzip it.
-2. In the directory which includes `index.html`, startup a http server A at port B
+1. Download the [ui.zip](https://github.com/snlab/afm2018-demo-unified-control/raw/master/webui/ui.zip) and unzip it.
+2. In the directory which includes `index.html`, start up a http server A at port B by command such as `python -m SimpleHTTPServer 8080`
 3. In your browser, open the url http://\<address-of-server-A\>:B?/remote=\<address-of-SDN-controller\>
 
 ### Example
