@@ -107,6 +107,7 @@ class Main(KytosNApp):
         trident = self.trident
         pkt = request.args.get('flow')
         sa_name = request.args.get('key')
+        log.info("SA_NAME"+sa_name)
         if sa_name == 'auth':
             sa_name = 'authenticated'
             sip = pkt[1:-1]
@@ -136,10 +137,8 @@ class Main(KytosNApp):
         eth = Ethernet()
         eth.unpack(msg.data.value)
         #log.info('ethernet type=%s'%str(eth.ether_type))
-
         switch = event.source.switch
         in_port = msg.in_port
-	
         # if eth.ether_type != 35020:
         #     log.info('ethernet type=%s'%str(eth.ether_type))
         if eth.ether_type == EtherType.IPV4:
@@ -147,22 +146,23 @@ class Main(KytosNApp):
             ipv4.unpack(eth.data.value)
 
             if ipv4.destination == '10.0.0.254':
+                pass
                 #only for host locate
-                role = HOST_ROLE[ipv4.source]
-                self.nodes[ipv4.source] = {'role': role}
-
-                h_id = ipv4.source
-                s_id = str(switch.dpid) + ":" + str(in_port)
-
-                h2s_id = h_id + "+" + s_id
-                s2h_id = s_id + "+" + h_id
-                self.edges[h2s_id] = {'src': h_id, 'dst': s_id}
-                self.edges[s2h_id] = {'src': s_id, 'dst': h_id}
-                #TODO: need to handle host mobility
-                print(self.nodes)
-                print(self.edges)
-                if not self.debug:
-                    pass # self.trident.set_topology(self.nodes, self.edges)
+                # role = HOST_ROLE[ipv4.source]
+                # self.nodes[ipv4.source] = {'role': role}
+                #
+                # h_id = ipv4.source
+                # s_id = str(switch.dpid) + ":" + str(in_port)
+                #
+                # h2s_id = h_id + "+" + s_id
+                # s2h_id = s_id + "+" + h_id
+                # self.edges[h2s_id] = {'src': h_id, 'dst': s_id}
+                # self.edges[s2h_id] = {'src': s_id, 'dst': h_id}
+                # #TODO: need to handle host mobility
+                # print(self.nodes)
+                # print(self.edges)
+                # if not self.debug:
+                #     pass # self.trident.set_topology(self.nodes, self.edges)
             else:
                 sip = ipv4.source
                 dip = ipv4.destination
@@ -188,7 +188,6 @@ class Main(KytosNApp):
                     tcph = unpack('!HHLLBBHHH' , eth.data.value[20:40])
                     sport = tcph[0]
                     dport = tcph[1]
-
                 elif ipproto == "udp":
                     udph = unpack('!HHHH', eth.data.value[20:28])
                     sport = udph[0]
@@ -196,23 +195,21 @@ class Main(KytosNApp):
                 else:
                     return
                     
-                print("sip:" + str(sip) + "dip:" + str(dip) + str(ipproto) + "sport" + str(sport) + "dport" + str(dport))
+                log.info("sip:" + str(sip) + "dip:" + str(dip) + str(ipproto) + "sport" + str(sport) + "dport" + str(dport))
                 pkt = TridentPacket(sip, dip, sport, dport, ipproto)
                 if not self.debug:
                     log.info('start to call trident new_pkt')
                     self.trident.new_pkt(pkt)
 
 
-
-
-    @listen_to('.*.reachable.mac')
-    def handle_reachable_mac(self, event):
-        switch = event.content['switch']
-        port = event.content['port']
-        reachable_mac = event.content['reachable_mac']
-        #log.info('find rm switch: ' + str(switch.id))
-        #log.info('find rm port: ' + str(port.port_number))
-        #log.info('find rm reachable_mac: ' + str(reachable_mac))
+    # @listen_to('.*.reachable.mac')
+    # def handle_reachable_mac(self, event):
+    #     switch = event.content['switch']
+    #     port = event.content['port']
+    #     reachable_mac = event.content['reachable_mac']
+    #     log.info('find rm switch: ' + str(switch.id))
+    #     log.info('find rm port: ' + str(port.port_number))
+    #     log.info('find rm reachable_mac: ' + str(reachable_mac))
 
     @listen_to('.*.interface.is.nni')
     def handle_new_link(self, event):
@@ -238,8 +235,8 @@ class Main(KytosNApp):
             need_update = True
 
         if need_update:
-            print("new link")
-            print(self.edges)
+            log.info("new link")
+            # print(self.edges)
             if not self.debug:
                 self.trident.set_topology(self.nodes, self.edges)
 
