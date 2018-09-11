@@ -19,7 +19,18 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 from mininet.link import TCLink, Intf
 
+"""
+vnf vnf-eth0:n4-eth4 vnf-eth1:n5-eth4
+h1 h1-eth0:n1-eth4
+ser ser-eth0:n2-eth4
+n1 lo:  n1-eth1:n2-eth1 n1-eth2:n3-eth1 n1-eth3:n4-eth1 n1-eth4:h1-eth0
+n2 lo:  n2-eth1:n1-eth1 n2-eth2:n3-eth4 n2-eth3:n5-eth3 n2-eth4:ser-eth0
+n3 lo:  n3-eth1:n1-eth2 n3-eth2:n4-eth2 n3-eth3:n5-eth2 n3-eth4:n2-eth2
+n4 lo:  n4-eth1:n1-eth3 n4-eth2:n3-eth2 n4-eth3:n5-eth1 n4-eth4:vnf-eth0
+n5 lo:  n5-eth1:n4-eth3 n5-eth2:n3-eth3 n5-eth3:n2-eth3 n5-eth4:vnf-eth1
 
+
+"""
 class ExtendCLI(CLI):
     def __init__(self, mininet, cmds_initial, cmds_destroy):
         self.current = None
@@ -32,6 +43,7 @@ class ExtendCLI(CLI):
             for line in self.cmds_initial:
                 info(line+"\n")
                 self.onecmd(line)
+        self.do_setup(None)
         CLI.run(self)
         if self.cmds_destory:
             for line in self.cmds_destory:
@@ -39,10 +51,22 @@ class ExtendCLI(CLI):
                 self.onecmd(line)
 
     def do_setup(self, _line):
-        for i in self.mn.hosts:
-            cmd = "%s arp -s 10.0.0.254 00:11:11:11:11:11"%str(i)
-            print(cmd)
-            self.onecmd(cmd)        
+        pair = [('ser','10.0.0.1','00:00:00:00:00:03'),
+                ('h1','10.0.0.2','00:00:00:00:00:02'),
+                ('vnf','10.0.0.3','00:00:00:00:00:01')]
+        for i in pair:
+            for j in pair:
+                if i[0]!=j[0]:
+                    cmd = "%s arp -s %s %s"%(i[0],j[1],j[2])
+                    print(cmd)
+                    self.onecmd(cmd)
+
+
+        # for i in self.mn.hosts:
+        #     cmd = "%s arp -s 10.0.0.254 00:11:11:11:11:11"%str(i)
+        #     print(cmd)
+        #     self.onecmd(cmd) 
+
         # for i in self.mn.hosts:
         #     cmd = "%s ping 10.0.0.254 -c 1"%str(i)
         #     print(cmd)
@@ -148,8 +172,8 @@ def start_ddp_switchproxy(topo, controller):
     if not os.path.exists('log'):
         os.mkdir('log')
     for sw in swl:
-        ip = "172.250.%d.%d"%(c,d)
-        call("ifconfig %s %s up"%(sw, ip), shell=True)
+        ip = "127.250.%d.%d"%(c,d)
+        # call("ifconfig %s %s up"%(sw, ip), shell=True)
         call("ovs-vsctl set-controller %s tcp:%s:6653"%(sw,ip), shell=True)
         cmd = "%s/start-switch-proxy.sh %s %d %s" % (filedir, ip, 6653, controller)
         out = open("log/%s.log"%sw,'w')

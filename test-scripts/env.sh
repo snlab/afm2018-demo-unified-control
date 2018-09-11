@@ -1,1 +1,1 @@
-export VENV=/home/afm18/afm-demo/kytosvenv
+export VENV=/home/yutao/App/venv3.6

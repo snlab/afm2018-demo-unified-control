@@ -132,8 +132,8 @@ class Main(KytosNApp):
         switch = event.source.switch
         in_port = msg.in_port
 	
-        if eth.ether_type != 35020:
-            log.info('ethernet type=%s'%str(eth.ether_type))
+        # if eth.ether_type != 35020:
+        #     log.info('ethernet type=%s'%str(eth.ether_type))
         if eth.ether_type == EtherType.IPV4:
             ipv4 = IPv4()
             ipv4.unpack(eth.data.value)
@@ -154,13 +154,21 @@ class Main(KytosNApp):
                 print(self.nodes)
                 print(self.edges)
                 if not self.debug:
-                    self.trident.set_topology(self.nodes, self.edges)
+                    pass # self.trident.set_topology(self.nodes, self.edges)
             else:
                 sip = ipv4.source
                 dip = ipv4.destination
                 ipproto = ipv4.protocol
                 sport = None
                 dport = None
+                # allow_ip = ["10.0.0.1","10.0.0.2","10.0.0.3"]
+                # if sip not in allow_ip:
+                #     return
+                # if dip not in allow_ip:
+                #     return
+                allow_pair =[("10.0.0.2","10.0.0.3"),("10.0.0.2","10.0.0.1")]
+                if (sip,dip) not in allow_pair:
+                    return
                 if ipproto == 6:
                     ipproto = "tcp"
                 elif ipproto == 17:

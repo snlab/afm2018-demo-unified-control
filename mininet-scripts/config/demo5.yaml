@@ -43,5 +43,5 @@ links:
 commands:
   initial:
     - "sh ifconfig vnf-eth0 10.0.0.3 up"
-    - "sh ifconfig vnf-eth1 10.0.0.4 up"
+    - "sh ifconfig vnf-eth1 up"
 

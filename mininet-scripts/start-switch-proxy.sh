@@ -4,7 +4,7 @@
 source ~/App/venv3.6/bin/activate
 
 # add the DDP module to PYTHONPATH or install DDP module
-export PYTHONPATH="/home/yutao/Desktop/nccontainer"
+export PYTHONPATH="/home/yutao/Desktop/afm2018-demo-unified-control/ddp/lib"
 
 mkdir -p log
 

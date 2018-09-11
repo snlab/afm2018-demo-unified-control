@@ -131,10 +131,14 @@ class Proxy:
         loop =  asyncio.new_event_loop()
         self.loop = loop
         self.start_server(loop)
-        try:
-            loop.run_forever()
-        except KeyboardInterrupt:
-            pass
+        while True:
+            try:
+                loop.run_forever()
+            except KeyboardInterrupt as e:
+                self.logger.error(str(e))
+            except Exception as e:
+                self.logger.error(str(e))
+                break
         # Close the server
         self.logger.warn("run_forever exited")
         self._server.close()

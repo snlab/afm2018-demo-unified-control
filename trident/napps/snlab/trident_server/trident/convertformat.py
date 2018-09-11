@@ -4,7 +4,7 @@
 
 def convert_format(table):
     rules = table.rules
-    print(table)
+    # print(table)
     field = ['sip','dip','sport','dport','proto']
     ret = []
     for item in rules:
