@@ -57,7 +57,9 @@ class Main(KytosNApp):
         self.topology_not_set = True
         self.trident = TridentServer()
         self.trident.set_ctx_controller(self.controller)
-
+        sa_name ='authenticated'
+        # pkt = TridentPacket('10.0.0.2', '*', 0, 0, '*')
+        # self.trident.update_sa(sa_name, pkt, 'Accept')
         self.interface2DirLink = {}
 
         self.debug = False
@@ -109,13 +111,19 @@ class Main(KytosNApp):
             sa_name = 'authenticated'
             sip = pkt[1:-1]
             pkt = TridentPacket(sip, '*', 0, 0, '*')
-        if sa_name == 'http_host':
-            sa_name = 'http_uri'
+        # if sa_name == 'http_host':
+        #     sa_name = 'http_uri'
+        if sa_name == 'http_uri':
+            flow = pkt[1:-1]
+            sip,dip,sport,dport,proto = flow.split(',')
+            sport = int(sport)
+            dport = int(dport)
+            pkt = TridentPacket(sip,dip,sport,dport,proto)
             
         value = request.args.get('value')
         if not self.debug:
             trident.update_sa(sa_name, pkt, value)
-        print(str(sa_name) + " " + str(pkt) + " " + str(value))
+        log.info("Trident update_kv "+str(sa_name) + " " + str(pkt) + " " + str(value))
         return 'ok'
 
 

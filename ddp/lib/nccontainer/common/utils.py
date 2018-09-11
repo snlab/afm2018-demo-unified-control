@@ -121,7 +121,7 @@ class Tunnel2OFHandler(BoundProtocolForwarder):
         try:
             msg = TunnelMsg.unpack(msg_data)
         except Exception:
-            logger.error("can not unpack Tunnel Message")
+            logger.debug("can not unpack Tunnel Message")
         else:
             if msg.type == TunnelMsg.TYPE_PASS:
                 await self._on_pass_msg(msg)
@@ -154,7 +154,7 @@ class OF2TunnelHandler(BoundProtocolForwarder):
         try:
             of_msg = unpack(msg_data)
         except UnpackException:
-            self._connection.logger.warn("can not unpack OpenFlow Message, %s",str(msg_data))
+            self._connection.logger.debug("can not unpack OpenFlow Message, %s",str(msg_data))
             msg = TunnelMsg.construct(TunnelMsg.TYPE_PASS,msg_data)
             self._writer.write(msg.pack())
             await self._writer.drain()
