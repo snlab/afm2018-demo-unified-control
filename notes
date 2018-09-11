@@ -45,9 +45,19 @@ mininet>h1 ./radius-client.sh user rightpassword
 7. start http server
 mininet>ser python -m SimpleHTTPServer 80 &
 
+7x. start demohttpserver
+mininet>ser xterm &
+cd /home/afm18/afm-demo/afm2018-demo-unified-control/nfs/demo-http
+./demohttpserver.py 0.0.0.0
+
 8. client sends http request
 //Example
-mininet>h1 curl http://10.0.0.1/xxx.mp4
+mininet>h1 curl http://10.0.0.1/xxx.data
+
+8x. client send http request to demohttpserver
+mininet>h1 xterm &
+cd /home/afm18/afm-demo/afm2018-demo-unified-control/nfs/demo-http
+h1 ./democlient.py http://10.0.0.1:6666/demo/500000000.mp4 1 >/dev/null
 
 9. check path
 //kytos wb ui:
@@ -57,12 +67,24 @@ mininet>sh ovs-ofctl n1 dump-flows
 
 10. client sends different http request
 //Example
-mininet>h1 curl http://10.0.0.1/yyy.data
+mininet>h1 curl http://10.0.0.1/yyy.mp4
 
 11. check path
 
 12. link down
 //Example
-mininet>link n1 n2 down
+mininet>link n1 n3 down
 
 13. check path
+
+
+NOTE:
+1. The trident program is at /home/afm18/afm-demo/afm2018-demo-unified-control/trident/napps/snlab/trident_server/trident/example.tr
+2. The network is shown in /home/afm18/afm-demo/afm2018-demo-unified-control/mininet-scripts/topo5.png
+3. For *.mp4 flow, it should go through n5 to get to ser (n1 - n3 - n5). Therefore, to demostrate the efficience of the system, you may try to make link n1 and n3 down.
+
+
+
+
+
+
