@@ -124,8 +124,8 @@ class DependencyGraph:
         """
         dep = self
         node_map = self.__diff_path(priority, match, path1, path2)
-        dep.nodes = list(node_map.values())
-        return dep
+        # dep.nodes = list(node_map.values())
+        # return dep
         if not path1:
             if path2:
                 first = node_map[path2[0][0]]
@@ -167,7 +167,7 @@ class DependencyGraph:
                 dep.nodes = list(node_map.values())
             else:
                 first = node_map[path1[0][0]]
-                for p in path1[1:]:
+                for p,o in path1[1:]:
                     node = node_map[p]
                     node.acquire.append(first)
                     first.release.append(node)

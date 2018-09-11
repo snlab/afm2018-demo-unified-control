@@ -21,13 +21,12 @@ def test_hard():
     trident.set_topology(nodes, edges)
     print(trident.generate_table())
 
-    pkt = Packet('10.0.0.2', '10.0.0.1', 4, 80, 'udp')
+    pkt = Packet('10.0.0.2', '10.0.0.3', 4333, 40, 'udp')
     trident.set_pkt(pkt)
 
-    pkt = Packet('10.0.0.2', '10.0.0.1', 4, 80, 'udp')
-    trident.set_pkt(pkt)
-    
-    pkt = Packet('10.0.0.2', '10.0.0.1', 4, 80, 'udp')
+    print(trident.generate_table())
+
+    pkt = Packet('10.0.0.2', '10.0.0.1', 44445, 80, 'tcp')
     trident.set_pkt(pkt)
 
     print(trident.generate_table())

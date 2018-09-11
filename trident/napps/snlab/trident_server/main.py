@@ -248,11 +248,17 @@ class Main(KytosNApp):
             log.info("handle_new_link %s <->%s"%(str(a),str(b)))
             self.sw_links[a]=b
             self.sw_links[b]=a
+            self.__add_switch(a)
+            self.__add_switch(b)
             self._reexec()
         if b not in self.sw_links:
             assert a not in self.sw_links, "a in sw_links"
 
         self.lock.release()
+
+    def __add_switch(self, id):
+        if id not in self.sw_nodes:
+            self.sw_nodes[id]={'role': 'sw'}
 
     @listen_to('.*.switch.(new|reconnected)')
     def handle_new_switch(self, event):
@@ -298,7 +304,7 @@ class Main(KytosNApp):
         log.info("reexec")
         for sw,port  in settings.HOST_ENDPOINT.values():
             if sw not in self.sw_nodes:
-                log.warn("reexec sw not in self.sw_nodes")
+                log.warn("reexec %s not in %s"%(sw,str(self.sw_nodes)))
                 return
 
         nodes = dict(self.sw_nodes)
